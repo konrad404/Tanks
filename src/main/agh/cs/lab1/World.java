@@ -47,12 +47,13 @@ public class World {
         }
     public static void main(String[] args){
         String[] tab = {"f","l","b","backw", "left", "f","right"};
-        Animal pupil = new Animal();
-        System.out.println(pupil);
-        for (MoveDirection move : OptionsParser.parse(args)) {
-            pupil.move(move);
-        }
-        System.out.println(pupil.toString());
+        MoveDirection[] directions = new OptionsParser().parse(tab);
+        IWorldMap map = new RectangularMap(10,5);
+        map.place(new Animal(map));
+        map.place(new Animal(map, new Vector2d(3,4)));
+        map.run(directions);
+        System.out.print(map.toString());
+
     }
 
 }
