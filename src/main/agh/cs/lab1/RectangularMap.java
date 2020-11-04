@@ -5,14 +5,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
 
-public class RectangularMap implements IWorldMap {
+public class RectangularMap extends AbstractWorldMap implements IWorldMap {
     int width;
     int height;
     public RectangularMap(int x, int y) {
         width = x;
         height = y;
     }
-    public List<Animal> animals = new ArrayList<Animal>();
+    public List<Animal> animals = new ArrayList<>();
     @Override
     public boolean canMoveTo(Vector2d position) {
         if (!position.precedes(new Vector2d(width, height))) return false;
@@ -25,30 +25,13 @@ public class RectangularMap implements IWorldMap {
 
     @Override
     public boolean place(Animal animal) {
-        if (!animal.getPosition().precedes(new Vector2d(width, height))) return false;
-        if (!animal.getPosition().follows(new Vector2d(0, 0))) return false;
-        for(int i =0; i< animals.size(); i++){
-            if (animal.getPosition().equals(animals.get(i).getPosition())) return false;
+        if(canMoveTo(animal.getPosition())) {
+            animals.add(animal);
+            return true;
         }
-        animals.add(animal);
-        return true;
+        else return false;
     }
 
-    @Override
-    public void run(MoveDirection[] directions) {
-        if (animals.size() != 0)
-        for( int i=0 ; i< directions.length; i++){
-            animals.get(i%(animals.size())).move(directions[i]);
-        }
-    }
-
-    @Override
-    public boolean isOccupied(Vector2d position) {
-        for(int i =0; i< animals.size(); i++){
-            if (position.equals(animals.get(i).getPosition())) return true;
-        }
-        return false;
-    }
 
     @Override
     public Object objectAt(Vector2d position) {
@@ -57,9 +40,19 @@ public class RectangularMap implements IWorldMap {
         }
         return null;
     }
-    public String toString(){
-        MapVisualizer obraz = new MapVisualizer(this);
-        String mapa = obraz.draw(new Vector2d(0,0), new Vector2d(width, height));
-        return mapa;
+
+    @Override
+    protected Vector2d lowwerLeft() {
+        return new Vector2d(0,0);
     }
+
+    @Override
+    protected Vector2d upperRight() {
+        return new Vector2d(width,height);
+    }
+    @Override
+    protected List<Animal> getanimals(){
+        return animals;
+    }
+
 }

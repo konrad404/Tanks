@@ -1,8 +1,10 @@
 package agh.cs.lab1;
 
+import java.util.Random;
+
 public class World {
-    static void run (Direction[] instructions){
-        for (Direction move: instructions) {
+    static void run (MoveDirection[] instructions){
+        for (MoveDirection move: instructions) {
             switch(move){
                 case FORWARD:
                     System.out.println("do przodu");
@@ -19,24 +21,24 @@ public class World {
             }
         }
         }
-    static Direction[] change(String[] words)
+    static MoveDirection[] change(String[] words)
         {
-            Direction[] directions= new Direction[words.length];
+            MoveDirection[] directions= new MoveDirection[words.length];
             for (int i=0; i<words.length; i++) {
                 String word = words[i];
                 switch (word)
                 {
                     case "f":
-                        directions[i]= Direction.FORWARD;
+                        directions[i]= MoveDirection.FORWARD;
                         break;
                     case "b":
-                        directions[i]= Direction.BACKWARD;
+                        directions[i]= MoveDirection.BACKWARD;
                         break;
                     case "r":
-                        directions[i]= Direction.RIGHT;
+                        directions[i]= MoveDirection.RIGHT;
                         break;
                     case "l":
-                        directions[i]= Direction.LEFT;
+                        directions[i]= MoveDirection.LEFT;
                         break;
                     default:
                         break;
@@ -48,9 +50,10 @@ public class World {
     public static void main(String[] args){
         String[] tab = {"f","l","b","backw", "left", "f","right"};
         MoveDirection[] directions = new OptionsParser().parse(tab);
-        IWorldMap map = new RectangularMap(10,5);
+        IWorldMap map = new GrassField(10);
         map.place(new Animal(map));
         map.place(new Animal(map, new Vector2d(3,4)));
+        System.out.print(map.toString());
         map.run(directions);
         System.out.print(map.toString());
 

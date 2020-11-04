@@ -1,3 +1,5 @@
+package agh.cs.lab1;
+
 import agh.cs.lab1.Vector2d;
 import org.junit.Test;
 import static junit.framework.TestCase.assertEquals;

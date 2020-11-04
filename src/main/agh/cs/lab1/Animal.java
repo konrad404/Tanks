@@ -18,8 +18,7 @@ public class Animal {
     }
 
     public String toString(){
-        String answer = (orientation.toString());
-        return answer;
+        return orientation.toString();
     }
     public void move(MoveDirection direction){
         switch(direction){

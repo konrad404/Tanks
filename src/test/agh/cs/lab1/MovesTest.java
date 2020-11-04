@@ -1,10 +1,13 @@
+package agh.cs.lab1;
+
 import agh.cs.lab1.*;
 import org.junit.Test;
 import static junit.framework.TestCase.assertEquals;
 public class MovesTest {
     @Test
     public void orientation(){
-        Animal test = new Animal();
+        IWorldMap map = new RectangularMap(4,4);
+        Animal test = new Animal(map);
         test.move(MoveDirection.LEFT);
         test.move(MoveDirection.LEFT);
         test.move(MoveDirection.LEFT);
@@ -14,7 +17,8 @@ public class MovesTest {
     }
     @Test
     public void position(){
-        Animal test = new Animal();
+        IWorldMap map = new RectangularMap(4,4);
+        Animal test = new Animal(map);
         test.move(MoveDirection.LEFT);
         test.move(MoveDirection.LEFT);
         test.move(MoveDirection.LEFT);
@@ -28,7 +32,8 @@ public class MovesTest {
     }
     @Test
     public void map(){
-        Animal test = new Animal();
+        IWorldMap map = new RectangularMap(4,4);
+        Animal test = new Animal(map);
         test.move(MoveDirection.FORWARD);
         test.move(MoveDirection.FORWARD);
         test.move(MoveDirection.FORWARD);
@@ -38,7 +43,8 @@ public class MovesTest {
     }
     @Test
     public void map1(){
-        Animal test = new Animal();
+        IWorldMap map = new RectangularMap(4,4);
+        Animal test = new Animal(map);
         test.move(MoveDirection.BACKWARD);
         test.move(MoveDirection.BACKWARD);
         test.move(MoveDirection.BACKWARD);
@@ -48,7 +54,8 @@ public class MovesTest {
     }
     @Test
     public void chain(){
-        Animal test = new Animal();
+        IWorldMap map = new RectangularMap(4,4);
+        Animal test = new Animal(map);
         String[] tab = {"fo","l","b","backw", "lefta", "f","right", "right"};
         MoveDirection[] moves = OptionsParser.parse(tab);
         for (int i=0; i<moves.length; i++) {

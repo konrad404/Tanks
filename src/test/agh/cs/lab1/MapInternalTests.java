@@ -1,7 +1,8 @@
-import agh.cs.lab1.*;
+package agh.cs.lab1;
+
 import org.junit.Test;
 import static junit.framework.TestCase.assertEquals;
-public class MapTest {
+public class MapInternalTests {
     @Test
     public void integralTest1(){
         String[] args = {"l", "r", "r", "f", "f", "f", "l", "f"};
