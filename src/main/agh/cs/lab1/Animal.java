@@ -37,7 +37,7 @@ public class Animal {
                 break;
             }
             case BACKWARD: {
-                Vector2d move = position.substract(orientation.toUnitVector());
+                Vector2d move = position.subtract(orientation.toUnitVector());
                 if (map.canMoveTo(move))
                     position = move;
                 break;

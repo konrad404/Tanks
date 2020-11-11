@@ -1,16 +1,17 @@
 package agh.cs.lab1;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Vector;
+import java.util.*;
+
 
 
 abstract class AbstractWorldMap implements IWorldMap {
 
     abstract protected List<Animal> getanimals();
-
-    abstract protected Vector2d lowwerLeft();
+    abstract protected HashMap<Vector2d, Animal> getanimals2();
+    private MapVisualizer obraz = new MapVisualizer(this);
+    abstract protected Vector2d lowerLeft();
     abstract protected Vector2d upperRight();
+
     @Override
     abstract public boolean canMoveTo(Vector2d position);
     @Override
@@ -25,15 +26,19 @@ abstract class AbstractWorldMap implements IWorldMap {
 
     @Override
     public void run(MoveDirection[] directions) {
-        if (getanimals().size() != 0)
-            for( int i=0 ; i< directions.length; i++){
+        if (getanimals().size() != 0) {
+            for (int i =0; i<getanimals().size(); i++){
+                Vector2d start_position = getanimals().get(i%getanimals().size()).getPosition();
+                Animal animal = getanimals2().get(start_position);
                 getanimals().get(i%(getanimals().size())).move(directions[i]);
+                getanimals2().remove(start_position);
+                getanimals2().put(animal.getPosition(), animal);
             }
+        }
     }
 
     public String toString(){
-        MapVisualizer obraz = new MapVisualizer(this);
-        String mapa = obraz.draw(lowwerLeft(), upperRight());
+        String mapa = obraz.draw(lowerLeft(), upperRight());
         return mapa;
     }
 }

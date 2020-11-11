@@ -46,7 +46,7 @@ public class Vector2dTest {
         Vector2d tmp1 = new Vector2d(2,3);
         Vector2d tmp2 = new Vector2d(1,4);
         Vector2d tmp3 = new Vector2d(1,3);
-        assertEquals(tmp1.lowwerLeft(tmp2), tmp3 );
+        assertEquals(tmp1.lowerLeft(tmp2), tmp3 );
     }
     @Test
     public void Add(){
@@ -56,11 +56,11 @@ public class Vector2dTest {
         assertEquals(tmp1.add(tmp2), tmp3 );
     }
     @Test
-    public void Substract(){
+    public void Subtract(){
         Vector2d tmp1 = new Vector2d(2,3);
         Vector2d tmp2 = new Vector2d(1,-4);
         Vector2d tmp3 = new Vector2d(1,7);
-        assertEquals(tmp1.substract(tmp2), tmp3 );
+        assertEquals(tmp1.subtract(tmp2), tmp3 );
     }
     @Test
     public void Opposite(){

@@ -1,4 +1,5 @@
 package agh.cs.lab1;
+import java.lang.IllegalArgumentException;
 
 public class OptionsParser {
     public static MoveDirection[] parse (String[] tab){
@@ -36,6 +37,8 @@ public class OptionsParser {
                     movedirections[i] = MoveDirection.LEFT;
                     i++;
                     break;
+                default:
+                    throw new IllegalArgumentException(move + " is not legal move speccification");
             }
         }
         return movedirections;

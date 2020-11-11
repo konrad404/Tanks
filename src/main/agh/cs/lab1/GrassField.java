@@ -1,13 +1,13 @@
 package agh.cs.lab1;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
-
+import java.util.*;
+import java.lang.IllegalArgumentException;
+import java.util.LinkedHashMap;
 
 public class GrassField extends AbstractWorldMap {
     private List<Animal> animals = new ArrayList<>();
-    private List<Grass> grassfields = new ArrayList<>();
+    public HashMap<Vector2d, Animal> animals2 = new HashMap<>();
+    public List<Grass> grassfields = new ArrayList<>();
     private Vector2d left_down_corner= new Vector2d(0,0);
     private Vector2d right_up_corner= new Vector2d(0,0);
     boolean flag = true;
@@ -18,7 +18,10 @@ public class GrassField extends AbstractWorldMap {
             Grass grass = new Grass(new Vector2d(x,y));
             boolean occupied = false;
             for(int j =0; j< grassfields.size(); j++){
-                if (grass.equals(grassfields.get(j))) occupied = true;
+                if (grass.equals(grassfields.get(j))) {
+                    occupied = true;
+                    i--;
+                }
             }
             if (!occupied) {
                 // poniżej aktualizowanie wymiarów mapy do późniejszego wypisania
@@ -28,10 +31,8 @@ public class GrassField extends AbstractWorldMap {
                     flag = false;
                 }
                 else{
-                    if (x < left_down_corner.x) left_down_corner = new Vector2d(x, left_down_corner.y);
-                    else if (x > right_up_corner.x) right_up_corner = new Vector2d(x, right_up_corner.y);
-                    if (y<left_down_corner.y) left_down_corner = new Vector2d(left_down_corner.x, y);
-                    else if (y > right_up_corner.y) right_up_corner = new Vector2d(right_up_corner.x, y);
+                    left_down_corner = grass.getPosition().lowerLeft(left_down_corner);
+                    right_up_corner = grass.getPosition().upperRight(right_up_corner);
                 }
                 grassfields.add(grass);
             }
@@ -52,16 +53,17 @@ public class GrassField extends AbstractWorldMap {
     public boolean place(Animal animal) {
         if (canMoveTo(animal.getPosition())){
             animals.add(animal);
+            animals2.put(animal.getPosition(), animal);
             return true;
         }
-        else return false;
+        else throw new IllegalArgumentException("x="+ animal.getPosition().x +" y="+ animal.getPosition().y + " place is occupied");
     }
 
     @Override
     public Object objectAt(Vector2d position) {
-        for(int i =0; i< animals.size(); i++){
-            if (position.equals(animals.get(i).getPosition())) return animals.get(i);
-
+        if (animals2.containsKey(position)) {
+            if (animals2.get(position).getPosition().equals(position))
+                return animals2.get(position);
         }
         for(int i =0; i< grassfields.size(); i++){
             if (position.equals(grassfields.get(i).getPosition())) return grassfields.get(i);
@@ -69,10 +71,9 @@ public class GrassField extends AbstractWorldMap {
         return null;
     }
     @Override
-    protected Vector2d lowwerLeft() {
+    protected Vector2d lowerLeft() {
         for (int i =0 ; i < animals.size(); i++){
-            if (animals.get(i).getPosition().x < left_down_corner.x) left_down_corner = new Vector2d(animals.get(i).getPosition().x, left_down_corner.y);
-            if (animals.get(i).getPosition().y<left_down_corner.y) left_down_corner = new Vector2d(left_down_corner.x, animals.get(i).getPosition().y);
+            left_down_corner = animals.get(i).getPosition().lowerLeft(left_down_corner);
         }
         return left_down_corner;
     }
@@ -80,13 +81,16 @@ public class GrassField extends AbstractWorldMap {
     @Override
     protected Vector2d upperRight() {
         for (int i =0 ; i < animals.size(); i++){
-            if (animals.get(i).getPosition().x > right_up_corner.x) right_up_corner = new Vector2d(animals.get(i).getPosition().x, right_up_corner.y);
-            if (animals.get(i).getPosition().y>right_up_corner.y) right_up_corner = new Vector2d(right_up_corner.x, animals.get(i).getPosition().y);
+            right_up_corner = animals.get(i).getPosition().upperRight(right_up_corner);
         }
         return right_up_corner;
     }
     @Override
     protected List<Animal> getanimals(){
         return animals;
+    }
+    @Override
+    protected HashMap<Vector2d, Animal> getanimals2(){
+        return animals2;
     }
 }

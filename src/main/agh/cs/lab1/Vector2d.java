@@ -35,7 +35,7 @@ public class Vector2d {
         return upperRight;
     }
 
-    public Vector2d lowwerLeft(Vector2d other) {
+    public Vector2d lowerLeft(Vector2d other) {
         int x1;
         int y1;
         if (x < other.x) x1 = x;
@@ -70,10 +70,17 @@ public class Vector2d {
         return opposite;
     }
 
-    public Vector2d substract(Vector2d other) {
+    public Vector2d subtract(Vector2d other) {
         int x1 = x - other.x;
         int y1 = y - other.y;
         Vector2d added = new Vector2d(x1, y1);
         return added;
+    }
+    @Override
+    public int hashCode() {
+        int hash = 17;
+        hash += this.x*13;
+        hash += this.y*23;
+        return hash;
     }
 }

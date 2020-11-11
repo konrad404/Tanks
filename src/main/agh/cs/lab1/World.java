@@ -48,14 +48,18 @@ public class World {
             return directions;
         }
     public static void main(String[] args){
-        String[] tab = {"f","l","b","backw", "left", "f","right"};
-        MoveDirection[] directions = new OptionsParser().parse(tab);
-        IWorldMap map = new GrassField(10);
-        map.place(new Animal(map));
-        map.place(new Animal(map, new Vector2d(3,4)));
-        System.out.print(map.toString());
-        map.run(directions);
-        System.out.print(map.toString());
+        try {
+            String[] tab = {"f", "l", "b", "left", "f", "right"};
+            MoveDirection[] directions = new OptionsParser().parse(tab);
+            IWorldMap map = new GrassField(10);
+            map.place(new Animal(map));
+            map.place(new Animal(map, new Vector2d(3, 4)));
+            System.out.print(map.toString());
+            map.run(directions);
+            System.out.print(map.toString());
+        } finally {
+
+        }
 
     }
 
