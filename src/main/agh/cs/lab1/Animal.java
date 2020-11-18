@@ -1,14 +1,18 @@
 package agh.cs.lab1;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class Animal {
-    private final IWorldMap map;
+    private AbstractWorldMap map;
     private Vector2d position;
-    public Animal(IWorldMap map1) {
-        map = map1;
+    private List<IPositionChangeObserver> observers = new ArrayList<>();
+    public Animal(AbstractWorldMap map) {
+        this.map = map;
         position = new Vector2d(2,2);
     }
-    public Animal(IWorldMap map1, Vector2d initialPosition){
-        map = map1;
+    public Animal(AbstractWorldMap map, Vector2d initialPosition){
+        this.map=map;
         position = initialPosition;
     }
     private MapDirection orientation = MapDirection.NORTH;
@@ -31,21 +35,35 @@ public class Animal {
                 break;
             }
             case FORWARD: {
-                Vector2d move = position.add(orientation.toUnitVector());
-                if (map.canMoveTo(move))
-                    position = move;
+                Vector2d newposition = position.add(orientation.toUnitVector());
+                if (map.canMoveTo(newposition)) {
+                    map.positionChanged(position,newposition);
+                    position = newposition;
+                }
                 break;
             }
             case BACKWARD: {
-                Vector2d move = position.subtract(orientation.toUnitVector());
-                if (map.canMoveTo(move))
-                    position = move;
+                Vector2d newposition = position.subtract(orientation.toUnitVector());
+                if (map.canMoveTo(newposition))
+                    map.positionChanged(position,newposition);
+                position = newposition;
                 break;
             }
             default: break;
         }
     }
 
+    public void addObserver(IPositionChangeObserver observer){
+        observers.add(observer);
+    }
+    void removeObserver(IPositionChangeObserver observer){
+        for (int i =0;i< observers.size();i++){
+            if (observers.get(i).equals(observer)){
+                observers.remove(i);
+                break;
+            }
+        }
+    }
 
 
 }

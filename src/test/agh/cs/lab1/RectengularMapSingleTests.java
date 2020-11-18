@@ -6,7 +6,7 @@ public class RectengularMapSingleTests {
 
     @Test
     public void RectangularMap_place(){
-        IWorldMap map = new RectangularMap(4,4);
+        AbstractWorldMap map = new RectangularMap(4,4);
         boolean flag= true;
         try {
             map.place(new Animal(map, new Vector2d(4,5)));
@@ -19,10 +19,10 @@ public class RectengularMapSingleTests {
 
     @Test
     public void RectangularMap_place2(){
-        IWorldMap map = new RectangularMap(4,4);
-        map.place(new Animal(map, new Vector2d(4,4)));
+        AbstractWorldMap map = new RectangularMap(4,4);
         boolean flag= true;
         try {
+            map.place(new Animal(map, new Vector2d(4,4)));
             map.place(new Animal(map, new Vector2d(4,4)));
         }
         catch (IllegalArgumentException ex){
@@ -33,14 +33,14 @@ public class RectengularMapSingleTests {
 
     @Test
     public void RectangularMap_isOccupied2(){
-        IWorldMap map = new RectangularMap(4,4);
+        AbstractWorldMap map = new RectangularMap(4,4);
         map.place(new Animal(map));
         assertEquals(map.isOccupied(new Vector2d(2,2)), true);
     }
 
     @ Test
     public void RectangularMap_canMoveTo(){
-        IWorldMap map = new RectangularMap(4,4);
+        AbstractWorldMap map = new RectangularMap(4,4);
         map.place(new Animal(map, new Vector2d(1,2)));
         assertEquals(map.canMoveTo(new Vector2d(1,2)), false);
     }

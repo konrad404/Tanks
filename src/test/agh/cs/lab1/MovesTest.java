@@ -6,63 +6,43 @@ import static junit.framework.TestCase.assertEquals;
 public class MovesTest {
     @Test
     public void orientation(){
-        IWorldMap map = new RectangularMap(4,4);
+        AbstractWorldMap map = new RectangularMap(4,4);
         Animal test = new Animal(map);
         test.move(MoveDirection.LEFT);
         test.move(MoveDirection.LEFT);
         test.move(MoveDirection.LEFT);
         test.move(MoveDirection.RIGHT);
-        String a = ("(2,2) Południe");
+        String a = ("S");
         assertEquals(test.toString(), a);
     }
-    @Test
-    public void position(){
-        IWorldMap map = new RectangularMap(4,4);
-        Animal test = new Animal(map);
-        test.move(MoveDirection.LEFT);
-        test.move(MoveDirection.LEFT);
-        test.move(MoveDirection.LEFT);
-        test.move(MoveDirection.RIGHT);
-        test.move(MoveDirection.FORWARD);
-        test.move(MoveDirection.BACKWARD);
-        test.move(MoveDirection.BACKWARD);
-        test.move(MoveDirection.BACKWARD);
-        String a = ("(2,4) Południe");
-        assertEquals(test.toString(), a);
-    }
+
     @Test
     public void map(){
-        IWorldMap map = new RectangularMap(4,4);
+        AbstractWorldMap map = new RectangularMap(4,4);
         Animal test = new Animal(map);
-        test.move(MoveDirection.FORWARD);
-        test.move(MoveDirection.FORWARD);
-        test.move(MoveDirection.FORWARD);
-        test.move(MoveDirection.FORWARD);
-        String a = ("(2,4) Północ");
+        test.move(MoveDirection.LEFT);
+        test.move(MoveDirection.LEFT);
+        test.move(MoveDirection.LEFT);
+        test.move(MoveDirection.LEFT);
+        String a = ("N");
         assertEquals(test.toString(), a);
     }
-    @Test
-    public void map1(){
-        IWorldMap map = new RectangularMap(4,4);
-        Animal test = new Animal(map);
-        test.move(MoveDirection.BACKWARD);
-        test.move(MoveDirection.BACKWARD);
-        test.move(MoveDirection.BACKWARD);
-        test.move(MoveDirection.BACKWARD);
-        String a = ("(2,0) Północ");
-        assertEquals(test.toString(), a);
-    }
+
     @Test
     public void chain(){
-        IWorldMap map = new RectangularMap(4,4);
+        AbstractWorldMap map = new RectangularMap(4,4);
         Animal test = new Animal(map);
-        String[] tab = {"fo","l","b","backw", "lefta", "f","right", "right"};
-        MoveDirection[] moves = OptionsParser.parse(tab);
-        for (int i=0; i<moves.length; i++) {
-            test.move(moves[i]);
+        boolean flag= true;
+        try {
+            String[] tab = {"fo", "l", "b", "backw", "lefta", "f", "right", "right"};
+            MoveDirection[] moves = OptionsParser.parse(tab);
+            for (int i = 0; i < moves.length; i++) {
+                test.move(moves[i]);
+            }
+        } catch (IllegalArgumentException e) {
+            flag = false;
         }
-        String a = ("(2,2) Wschód");
-        assertEquals(test.toString(), a);
+        assertEquals(flag, false);
     }
 
 }

@@ -6,7 +6,7 @@ import java.lang.IllegalArgumentException;
 public class GrassfieldSingleTests {
     @Test
     public void grassfield_place() {
-        IWorldMap map = new GrassField(10);
+        AbstractWorldMap map = new GrassField(10);
         boolean flag= true;
         try {
             map.place(new Animal(map));
@@ -20,21 +20,21 @@ public class GrassfieldSingleTests {
 
     @Test
     public void grassfield_isOccupied(){
-        IWorldMap map = new GrassField(10);
+        AbstractWorldMap map = new GrassField(10);
         map.place(new Animal(map));
         assertEquals(map.isOccupied(new Vector2d(2,2)), true);
     }
 
     @ Test
     public void grassfield_canMoveTo(){
-        IWorldMap map = new GrassField(10);
+        AbstractWorldMap map = new GrassField(10);
         map.place(new Animal(map, new Vector2d(1,2)));
         assertEquals(map.canMoveTo(new Vector2d(1,2)), false);
     }
 
     @ Test
     public void grassfield_canMoveTo2(){
-        IWorldMap map = new GrassField(10);
+        AbstractWorldMap map = new GrassField(10);
         map.place(new Animal(map, new Vector2d(1,2)));
         assertEquals(map.canMoveTo(new Vector2d(2,2)), true);
     }
