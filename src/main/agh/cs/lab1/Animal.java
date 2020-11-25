@@ -6,6 +6,9 @@ import java.util.List;
 public class Animal {
     private AbstractWorldMap map;
     private Vector2d position;
+    private int energy;
+    private int[] gene = new int[32];
+    private int direction =0;
     private List<IPositionChangeObserver> observers = new ArrayList<>();
     public Animal(AbstractWorldMap map) {
         this.map = map;
@@ -13,6 +16,12 @@ public class Animal {
     }
     public Animal(AbstractWorldMap map, Vector2d initialPosition){
         this.map=map;
+        position = initialPosition;
+    }
+    public Animal(AbstractWorldMap map, Vector2d initialPosition, int energy, int[] gene){
+        this.map=map;
+        this.energy=energy;
+        this.gene = gene;
         position = initialPosition;
     }
     private MapDirection orientation = MapDirection.NORTH;
