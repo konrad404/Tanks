@@ -46,9 +46,9 @@ public class Vector2d {
         return lowwerLeft;
     }
 
-    public Vector2d add(Vector2d other) {
-        int x1 = x + other.x;
-        int y1 = y + other.y;
+    public Vector2d add(Vector2d other,int mapHeight,int mapWidth) {
+        int x1 = (x + other.x)%mapWidth;
+        int y1 = (y + other.y)%mapHeight;
         Vector2d added = new Vector2d(x1, y1);
         return added;
     }

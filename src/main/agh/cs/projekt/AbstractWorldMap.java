@@ -7,8 +7,8 @@ import java.util.Map;
 abstract class AbstractWorldMap implements IWorldMap, IPositionChangeObserver {
 
     private final MapVisualizer image = new MapVisualizer(this);
-    abstract protected Vector2d lowerLeft();
-    abstract protected Vector2d upperRight();
+    public int mapHeight;
+    public int mapWidth;
     protected final Map<Vector2d, Animal> animalsMap = new HashMap<>();
 
     @Override
@@ -29,12 +29,9 @@ abstract class AbstractWorldMap implements IWorldMap, IPositionChangeObserver {
     @Override
     abstract public Object objectAt(Vector2d position);
 
-    public String toString(){
-        String mapa = image.draw(lowerLeft(), upperRight());
-        return mapa;
-    }
+    abstract public String toString();
     @Override
-    public void positionChanged(Vector2d oldPosition, Vector2d newPosition){
+    public void positionChanged(Animal animal, Vector2d oldPosition, Vector2d newPosition){
         animalsMap.put(newPosition, animalsMap.remove(oldPosition));
     }
 }
