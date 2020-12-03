@@ -1,5 +1,7 @@
 package agh.cs.projekt;
 
+import java.util.Random;
+
 public class Vector2d {
     public Vector2d(int x, int y) {
         this.x = x;
@@ -47,8 +49,8 @@ public class Vector2d {
     }
 
     public Vector2d add(Vector2d other,int mapHeight,int mapWidth) {
-        int x1 = (x + other.x)%mapWidth;
-        int y1 = (y + other.y)%mapHeight;
+        int x1 = (x + other.x+mapWidth)%mapWidth;
+        int y1 = (y + other.y+mapHeight)%mapHeight;
         Vector2d added = new Vector2d(x1, y1);
         return added;
     }
@@ -82,5 +84,38 @@ public class Vector2d {
         hash += this.x*13;
         hash += this.y*23;
         return hash;
+    }
+
+//    funkcja zwraca losowe miejsce dokoła danej pozycji
+    public Vector2d goInDirection(int direction, int mapHeight, int mapWidth) {
+        switch (direction) {
+            case 0: {
+                return this.add(new Vector2d(0, 1), mapHeight, mapWidth);
+            }
+            case 1: {
+                return this.add(new Vector2d(1, 1), mapHeight, mapWidth);
+            }
+            case 2: {
+                return this.add(new Vector2d(1, 0), mapHeight, mapWidth);
+            }
+            case 3: {
+                return this.add(new Vector2d(1, -1), mapHeight, mapWidth);
+            }
+            case 4: {
+                return this.add(new Vector2d(0, -1), mapHeight, mapWidth);
+            }
+            case 5: {
+                return this.add(new Vector2d(-1, -1), mapHeight, mapWidth);
+            }
+            case 6: {
+                return this.add(new Vector2d(-1, 0), mapHeight, mapWidth);
+            }
+            case 7: {
+                return this.add(new Vector2d(-1, 1), mapHeight, mapWidth);
+            }
+            default: {
+                return this;
+            }
+        }
     }
 }

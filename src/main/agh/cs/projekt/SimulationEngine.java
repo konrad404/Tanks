@@ -12,10 +12,13 @@ public class SimulationEngine implements IEngine {
 
     private JungleMap map;
     private int oneGrassEnergy;
+    private int copulationEnergy;
     private ListMultimap<Vector2d, Animal> animalsMap = ArrayListMultimap.create();
-    public SimulationEngine(JungleMap map, Vector2d[] positions, int startingEnergy, int oneGrassEnergy){
+    public SimulationEngine(JungleMap map, Vector2d[] positions, int startingEnergy, int oneGrassEnergy,
+                            int copulationEnergy){
         this.map = map;
         this.oneGrassEnergy = oneGrassEnergy;
+        this.copulationEnergy = copulationEnergy;
         for (int i=0 ; i< positions.length ; i++){
             int[] gene = new int[32];
             for (int j =0; j<gene.length; j++){
@@ -70,7 +73,41 @@ public class SimulationEngine implements IEngine {
         }
     }
 
-//    public void copulations
+    public void copulations(){
+        for (Vector2d position: animalsMap.keySet()){
+            if (animalsMap.get(position).size()>1){
+                ArrayList<Animal> animals = new ArrayList<>(animalsMap.get(position));
+//                ponieżej wyszukujemy 2 zwierzęta o najwyższej energii na każdym miejscu
+                int id1=0;
+                for (int i =1; i< animals.size(); i++){
+                    if (animals.get(i).energy>animals.get(id1).energy) id1 =i;
+                }
+                int id2 = (id1+1)%animals.size();
+                for(int i =0;i<animals.size();i++){
+                    if(i != id1 && animals.get(i).energy > animals.get(id2).energy) id2 =i;
+                }
+                Animal parent1 = animals.get(id1);
+                Animal parent2 = animals.get(id2);
+                if(parent1.energy<copulationEnergy || parent2.energy < copulationEnergy) continue;
+//               poniżej tworzenie genu dziecka
+                int cut1 = 1 + new Random().nextInt(29);
+                int cut2 = cut1 + 1 + new Random().nextInt((30-cut1));
+                int [] gene = new int[32];
+                for (int i =0; i<=cut1;i++) gene[i] = parent1.gene[i];
+                for (int i =cut1+1; i<=cut2;i++) gene[i] = parent2.gene[i];
+                for (int i = cut2+1;i<32;i++) gene[i] = parent1.gene[i];
+//               energia dziecka to suma oddanych energi jego rodziców (1/4)
+
+                int energy = parent1.giveBirth()+parent2.giveBirth();
+
+                Animal child = new Animal(map,map.findBirthPlace(position), energy , gene);
+                if (map.place(child)){
+                    animalsMap.put(child.getPosition(),child);
+                    child.addObserver(map);
+                }
+            }
+        }
+    }
 
 //    do usnunięcia
     public void show(){

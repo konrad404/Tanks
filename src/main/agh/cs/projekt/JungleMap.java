@@ -150,6 +150,56 @@ public class JungleMap extends AbstractWorldMap {
         animalJungleMap.remove(oldPosition, animal);
         animalJungleMap.put(newPosition, animal);
     }
+// chcemy losowe miejsce dookoła, nie pierwsze
+    public Vector2d findBirthPlace(Vector2d position) {
+        Vector2d newPosition = position;
+        boolean flag = false;
+        for (int i = 0; i < 8; i++) {
+            switch (i) {
+                case 0: {
+                    newPosition = position.add(new Vector2d(0, 1), mapHeight, mapHeight);
+                    break;
+                }
+                case 1: {
+                    newPosition = position.add(new Vector2d(1, 1), mapHeight, mapHeight);
+                    break;
+                }
+                case 2: {
+                    newPosition = position.add(new Vector2d(1, 0), mapHeight, mapHeight);
+                    break;
+                }
+                case 3: {
+                    newPosition = position.add(new Vector2d(1, -1), mapHeight, mapHeight);
+                    break;
+                }
+                case 4: {
+                    newPosition = position.add(new Vector2d(0, -1), mapHeight, mapHeight);
+                    break;
+                }
+                case 5: {
+                    newPosition = position.add(new Vector2d(-1, -1), mapHeight, mapHeight);
+                    break;
+                }
+                case 6: {
+                    newPosition = position.add(new Vector2d(-1, 0), mapHeight, mapHeight);
+                    break;
+                }
+                case 7: {
+                    newPosition = position.add(new Vector2d(-1, 1), mapHeight, mapHeight);
+                    break;
+                }
+            }
+            if (!isOccupied(newPosition)) flag = true;
+        }
+
+        int direction = new Random().nextInt(8);
+//        jeśli jest wolne miejsce (chociaż jedno to wybieramy je losowo)
+        if (flag){
+           while (isOccupied(position.goInDirection(direction, mapHeight, mapWidth)))
+               direction = new Random().nextInt(8);
+        }
+        return (position.goInDirection(direction,mapHeight,mapWidth));
+    }
 
     @Override
     public Object objectAt(Vector2d position) {

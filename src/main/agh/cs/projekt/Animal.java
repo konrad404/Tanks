@@ -47,10 +47,6 @@ public class Animal {
         this.energy=energy;
         this.gene = gene;
         position = initialPosition;
-//        for(int i : gene) {
-//            System.out.print(i);
-//        }
-//        System.out.println();
     }
 
     public Vector2d getPosition(){
@@ -66,41 +62,7 @@ public class Animal {
         int turnId = new Random().nextInt(32);
         direction +=  gene[turnId];
         direction %= 8;
-        Vector2d newPosition = new Vector2d(0,0);
-        switch (direction){
-            case 0:{
-                newPosition = position.add(new Vector2d(0,1), map.mapHeight, map.mapHeight);
-                break;
-            }
-            case 1:{
-                newPosition = position.add(new Vector2d(1,1), map.mapHeight, map.mapHeight);
-                break;
-            }
-            case 2:{
-                newPosition = position.add(new Vector2d(1,0), map.mapHeight, map.mapHeight);
-                break;
-            }
-            case 3:{
-                newPosition = position.add(new Vector2d(1,-1), map.mapHeight, map.mapHeight);
-                break;
-            }
-            case 4:{
-                newPosition = position.add(new Vector2d(0,-1), map.mapHeight, map.mapHeight);
-                break;
-            }
-            case 5:{
-                newPosition = position.add(new Vector2d(-1,-1), map.mapHeight, map.mapHeight);
-                break;
-            }
-            case 6:{
-                newPosition = position.add(new Vector2d(-1,0), map.mapHeight, map.mapHeight);
-                break;
-            }
-            case 7:{
-                newPosition = position.add(new Vector2d(-1,1), map.mapHeight, map.mapHeight);
-                break;
-            }
-        }
+        Vector2d newPosition = position.goInDirection(direction,map.mapHeight, map.mapWidth);
 //        System.out.println("z: " + position.toString()+ " do: " + newPosition.toString());
         map.positionChanged(animal,position,newPosition);
         position = newPosition;
@@ -108,6 +70,12 @@ public class Animal {
 
     public void eat(int bonusenergy){
         this.energy += bonusenergy;
+    }
+
+    public int giveBirth(){
+        int energyloss = energy/4;
+        energy -=energyloss;
+        return energyloss;
     }
 
     public void addObserver(IPositionChangeObserver observer){
