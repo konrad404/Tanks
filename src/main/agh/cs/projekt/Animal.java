@@ -5,22 +5,24 @@ import java.util.*;
 public class Animal {
     private AbstractWorldMap map;
     private Vector2d position;
+    public int age;
     public int energy;
     public int[] gene = new int[32];
     private int direction =new Random().nextInt(8);
     private List<IPositionChangeObserver> observers = new ArrayList<>();
+    private int moveEnergy;
+    private int childrenNumber;
 
-    public Animal(AbstractWorldMap map) {
-        this.map = map;
-        position = new Vector2d(2,2);
-    }
-
-    public Animal(AbstractWorldMap map, Vector2d initialPosition){
+    public Animal(AbstractWorldMap map, Vector2d initialPosition, int energy, int[] gene, int moveEnergy){
+        age =0;
         this.map=map;
+        this.energy=energy;
+        this.gene = rightGene(gene);
+        this.moveEnergy = moveEnergy;
         position = initialPosition;
     }
 
-    public Animal(AbstractWorldMap map, Vector2d initialPosition, int energy, int[] gene){
+    private int[] rightGene(int[] gene){
         int[] count = new int[8];
         for (int i =0; i< gene.length;i++){
             count[gene[i]]++;
@@ -41,12 +43,9 @@ public class Animal {
                 }
             }
         }
-// następnie sorujemy genom:
+// następnie sortujemy genom:
         Arrays.sort(gene);
-        this.map=map;
-        this.energy=energy;
-        this.gene = gene;
-        position = initialPosition;
+        return gene;
     }
 
     public Vector2d getPosition(){
@@ -66,6 +65,9 @@ public class Animal {
 //        System.out.println("z: " + position.toString()+ " do: " + newPosition.toString());
         map.positionChanged(animal,position,newPosition);
         position = newPosition;
+        energy -= moveEnergy;
+        if (energy <=0) map.death(animal, position);
+        else age++;
     }
 
     public void eat(int bonusenergy){
@@ -82,14 +84,6 @@ public class Animal {
         observers.add(observer);
     }
 
-    void removeObserver(IPositionChangeObserver observer){
-        for (int i =0;i< observers.size();i++){
-            if (observers.get(i).equals(observer)){
-                observers.remove(i);
-                break;
-            }
-        }
-    }
 
 
 }

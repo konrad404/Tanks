@@ -13,5 +13,6 @@
     <orderEntry type="library" exported="" scope="TEST" name="junit:junit:4.13" level="project" />
     <orderEntry type="library" name="junit:junit:4.13.1" level="project" />
     <orderEntry type="library" name="guava-23.0" level="project" />
+    <orderEntry type="library" name="lib" level="project" />
   </component>
 </module>

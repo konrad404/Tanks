@@ -13,14 +13,10 @@ abstract class AbstractWorldMap implements IWorldMap, IPositionChangeObserver {
 
     @Override
     abstract public boolean canMoveTo(Vector2d position);
+
     @Override
-    public boolean place(Animal animal){
-        if (canMoveTo(animal.getPosition())){
-            animalsMap.put(animal.getPosition(), animal);
-            return true;
-        }
-        else throw new IllegalArgumentException(animal.getPosition().toString() + " place is occupied");
-    }
+    public void place(Animal animal){};
+
     @Override
     public boolean isOccupied(Vector2d position) {
         if (objectAt(position) != null) return true;
