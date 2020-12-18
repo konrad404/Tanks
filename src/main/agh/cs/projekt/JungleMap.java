@@ -79,7 +79,8 @@ public class JungleMap extends AbstractWorldMap {
         return count;
     }
 
-    public void placeGrasses() {
+    public int placeGrasses() {
+        int placed =2;
         int placesInJungle = emptyPlacesInJungle();
         int placesOutOfJungle = emptyPlacesOutOfJungle();
 //        System.out.println("miejsca poza junglą: " + placesOutOfJungle);
@@ -99,7 +100,7 @@ public class JungleMap extends AbstractWorldMap {
 //        jeśli nie to wywołujemy funkcję dodania pojedyńczej trawy na losowe miejsce
         else if(placesInJungle > 1)
             placeGrassInJungle();
-
+        else placed --;
 //      jeśli jest tylko jedno wolne miejsce to na nim stawiamy, bez losowania
         if (placesOutOfJungle == 1) {
             for (int i = 0; i < mapWidth; i++) {
@@ -118,7 +119,8 @@ public class JungleMap extends AbstractWorldMap {
 //        jeśli nie to wywołujemy funkcję dodania pojedyńczej trawy na losowe miejsce
         else if(placesOutOfJungle >1)
             placeGrassOutOfJungle();
-
+        else placed --;
+        return placed;
     }
 
     public boolean isGrassAt(Vector2d position){
@@ -129,10 +131,27 @@ public class JungleMap extends AbstractWorldMap {
         grassFieldsMap.remove(position);
     }
 
-    public Vector2d getRightUpCorner(){
-        return right_up_corner;
-    }
+//    public Vector2d getRightUpCorner(){
+//        return right_up_corner;
+//    }
 
+    public Vector2d findBirthPlace(Vector2d position) {
+        Vector2d newPosition = position;
+//      sprawdzanie czy dokoła jest jakieś wolne miejsce
+        boolean flag = false;
+        for (int i = 0; i < 8; i++) {
+            newPosition = position.goInDirection(i,mapHeight,mapWidth);
+            if (!isOccupied(newPosition)) flag = true;
+        }
+
+        int direction = new Random().nextInt(8);
+//        jeśli jest wolne miejsce (chociaż jedno to wybieramy je losowo)
+        if (flag){
+            while (isOccupied(position.goInDirection(direction, mapHeight, mapWidth)))
+                direction = new Random().nextInt(8);
+        }
+        return (position.goInDirection(direction,mapHeight,mapWidth));
+    }
 
     @Override
     public boolean canMoveTo(Vector2d position) {
@@ -156,56 +175,7 @@ public class JungleMap extends AbstractWorldMap {
         animalJungleMap.remove(position, animal);
     }
 
-    public Vector2d findBirthPlace(Vector2d position) {
-        Vector2d newPosition = position;
-//      sprawdzanie czy dokoła jest jakieś wolne miejsce
-        boolean flag = false;
-        for (int i = 0; i < 8; i++) {
-            switch (i) {
-                case 0: {
-                    newPosition = position.add(new Vector2d(0, 1), mapHeight, mapHeight);
-                    break;
-                }
-                case 1: {
-                    newPosition = position.add(new Vector2d(1, 1), mapHeight, mapHeight);
-                    break;
-                }
-                case 2: {
-                    newPosition = position.add(new Vector2d(1, 0), mapHeight, mapHeight);
-                    break;
-                }
-                case 3: {
-                    newPosition = position.add(new Vector2d(1, -1), mapHeight, mapHeight);
-                    break;
-                }
-                case 4: {
-                    newPosition = position.add(new Vector2d(0, -1), mapHeight, mapHeight);
-                    break;
-                }
-                case 5: {
-                    newPosition = position.add(new Vector2d(-1, -1), mapHeight, mapHeight);
-                    break;
-                }
-                case 6: {
-                    newPosition = position.add(new Vector2d(-1, 0), mapHeight, mapHeight);
-                    break;
-                }
-                case 7: {
-                    newPosition = position.add(new Vector2d(-1, 1), mapHeight, mapHeight);
-                    break;
-                }
-            }
-            if (!isOccupied(newPosition)) flag = true;
-        }
 
-        int direction = new Random().nextInt(8);
-//        jeśli jest wolne miejsce (chociaż jedno to wybieramy je losowo)
-        if (flag){
-           while (isOccupied(position.goInDirection(direction, mapHeight, mapWidth)))
-               direction = new Random().nextInt(8);
-        }
-        return (position.goInDirection(direction,mapHeight,mapWidth));
-    }
 
     @Override
     public Object objectAt(Vector2d position) {

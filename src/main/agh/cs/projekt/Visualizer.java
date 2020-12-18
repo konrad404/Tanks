@@ -3,6 +3,7 @@ package agh.cs.projekt;
 import javafx.application.Application;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.Button;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
@@ -10,7 +11,6 @@ import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
-import java.awt.*;
 
 
 public class Visualizer {
@@ -22,6 +22,8 @@ public class Visualizer {
 
     private final int xTiles;
     private final int yTiles;
+    private final Text statistics;
+    public boolean paused;
 
 
     public Tile[][] grid;
@@ -34,6 +36,8 @@ public class Visualizer {
         this.tileSizeX = (float) w/xTiles;
         this.tileSizeY = (float) h/yTiles;
         this.grid = new Tile[xTiles][yTiles];
+        this.statistics = new Text("a");
+        this.paused = false;
     }
 
     public Parent createContent(){
@@ -49,13 +53,33 @@ public class Visualizer {
                 root.getChildren().add(tile);
             }
         }
+        Button pauseButton = new Button("Pause");
+        pauseButton.setTranslateX(w+40);
+        pauseButton.setTranslateY(40);
+        pauseButton.setOnAction(event -> changePause());
+        root.getChildren().add(pauseButton);
+
+        this.statistics.setTranslateX(w+40);
+        this.statistics.setTranslateY(80);
+        root.getChildren().add(this.statistics);
+
+
         return root;
     }
 
-
+    private void changePause(){
+        if (this.paused == false) this.paused = true;
+        else if (this.paused == true) this.paused = false;
+//        System.out.println(this.paused);
+    }
 
     public void changeColor(int x, int y, Color color){
         grid[x][y].changeColor(color);
+    }
+
+    public void addStatistics(String statistics){
+        this.statistics.setText(statistics);
+//        System.out.println(statistics);
     }
 
 

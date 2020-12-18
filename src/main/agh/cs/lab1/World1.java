@@ -2,7 +2,7 @@ package agh.cs.lab1;
 
 import java.util.Random;
 
-public class World {
+public class World1 {
     static void run (MoveDirection[] instructions){
         for (MoveDirection move: instructions) {
             switch(move){

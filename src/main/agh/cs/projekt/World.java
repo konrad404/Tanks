@@ -22,18 +22,21 @@ public class World  extends Application{
     public void start(Stage stage) throws Exception {
         Visualizer visualizer = new Visualizer(400,400, 20,20);
         JungleMap map = new JungleMap(20,20, (float) 0.5);
-        SimulationEngine engine = new SimulationEngine(map,visualizer,0,50,20,2);
+        SimulationEngine engine = new SimulationEngine(map,visualizer,20,50,20,2);
         Scene scene = new Scene(visualizer.createContent(),900,600);
         stage.setScene(scene);
         stage.show();
-        engine.day();
+//        engine.day();
         new Thread (() ->{
-            for (int i = 0; i < 1000; i++) {
-                engine.day();
+            while (!(visualizer.paused)) {
                 try {
                     Thread.sleep(200);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
+                }
+                engine.day();
+                while(visualizer.paused){
+                    System.out.print("");
                 }
             }
         }).start();

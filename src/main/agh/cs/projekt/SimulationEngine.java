@@ -36,7 +36,7 @@ public class SimulationEngine implements IEngine {
             Vector2d position = new Vector2d(new Random().nextInt(map.mapWidth), new Random().nextInt(map.mapHeight));
             while(map.isOccupied(position))
                 position = new Vector2d(new Random().nextInt(map.mapWidth), new Random().nextInt(map.mapHeight));
-            Animal animal = new Animal(map,position, startingEnergy,gene, moveEnergy);
+            Animal animal = new Animal(map,position, startingEnergy,gene, moveEnergy, null, null);
             map.place(animal);
             animalsMap.put(position,animal);
             animal.addObserver(map);
@@ -161,7 +161,7 @@ public class SimulationEngine implements IEngine {
 
                 int energy = parent1.giveBirth()+parent2.giveBirth();
                 Vector2d birthPosition = map.findBirthPlace(position);
-                Animal child = new Animal(map,birthPosition, energy , gene, moveEnergy);
+                Animal child = new Animal(map,birthPosition, energy , gene, moveEnergy, parent1, parent2);
                 children.add(child);
                 childrenPositions.add(birthPosition);
             }
@@ -184,7 +184,10 @@ public class SimulationEngine implements IEngine {
 
     public void day(){
 //        System.out.println("dzień dobry");
-        map.placeGrasses();
+        int newGrasses = map.placeGrasses();
+
+        spectator.placeGrass(newGrasses);
+
         run();
 //        System.out.println("pobiegane");
         eating();
@@ -210,15 +213,26 @@ public class SimulationEngine implements IEngine {
             }
         }
 
-        for(Animal animal: animalsMap.values()){
-            int x = animal.getPosition().x;
-            int y = animal.getPosition().y;
+        for(Vector2d position: animalsMap.keySet()){
+            int x = position.x;
+            int y = position.y;
 //            System.out.println("x: " +x + " y: " + y);
-            if(animalsMap.get(animal.getPosition()).size() >1)
-                visualizer.changeColor(x,y,Color.BLACK);
+            ArrayList<Animal> animals = new ArrayList<>(animalsMap.get(position));
+            if(animalsMap.get(position).size() >1) {
+                int maxEnergy =0;
+                int id =0;
+                for(int i=0; i< animals.size();i++){
+                    if (animals.get(i).energy>maxEnergy){
+                        maxEnergy = animals.get(i).energy;
+                        id =i;
+                    }
+                }
+                visualizer.changeColor(x, y, animals.get(id).getcolor());
+            }
             else
-                visualizer.changeColor(x,y,Color.RED);
+                visualizer.changeColor(x,y,animals.get(0).getcolor());
         }
+        visualizer.addStatistics(spectator.toString());
 
 //        System.out.println("dobranoc");
 

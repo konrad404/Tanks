@@ -10,19 +10,29 @@ public class Spectator {
     private double avgLifeTime;
     private int sumLifeTime;
     private int deathCount;
+    private int grasscount;
+    private int childrenAmount;
 
 
 
     public Spectator(int beginners, int startingEnergy){
+        grasscount =0;
         animalNumber=0;
         avgEnergy = 0;
         sumEnergy=beginners*startingEnergy;
         avgLifeTime =0;
         sumLifeTime=0;
         deathCount=0;
+        childrenAmount = 0;
+
+    }
+
+    public void placeGrass(int placed){
+        grasscount += placed;
     }
 
     public void birth(Animal animal){
+//        childrenAmount+=2;
         animalNumber++;
         if (genotypes.containsKey(animal.gene)){
             genotypes.put(animal.gene, genotypes.remove(animal.gene)+1);
@@ -33,6 +43,8 @@ public class Spectator {
     }
 
     public void death(Animal animal, int lostEnergy){
+//        childrenAmount-=animal.childrenNumber;
+//        childrenAmount-=2;
         deathCount++;
 //        System.out.println("wiek śmierci: "+ animal.age);
         sumLifeTime+=animal.age;
@@ -53,9 +65,10 @@ public class Spectator {
 
     public void eating(int grassAmount, int grassEnergy){
         sumEnergy += grassAmount*grassEnergy;
+        grasscount -= grassAmount;
     }
 
-    public void present(){
+    public String toString(){
         int animalsAlive = animalNumber-deathCount;
         if(sumLifeTime >0){
             avgLifeTime = (float) sumLifeTime / deathCount;
@@ -81,17 +94,25 @@ public class Spectator {
             }
             mostoftengenome = potencialGenome.get(new Random().nextInt(potencialGenome.size()));
         }
+
         else{
             for(int[] genome: genotypes.keySet())
                 if(genotypes.get(genome) == maxAmount) mostoftengenome = genome;
         }
 
-//        System.out.println("łączna energia: " + sumEnergy);
-        System.out.print("najczęściej występujący genom: ");
-        for(int i: mostoftengenome) System.out.print(i);
-        System.out.println(" ilość: " + maxAmount);
-//        System.out.println("suma lat: "+ sumLifeTime);
-        System.out.println("żyjące zwierzta: " + animalsAlive + " srednia energia: " + avgEnergy);
-        System.out.println("zwierzęta które umarły: " + deathCount+" średnia długość życia zwierząt (które umarły): " + avgLifeTime);
+        float avgChildrenAmount = (float) childrenAmount/(2*animalsAlive);
+
+
+        String gen = "";
+        for(int i =0; i< mostoftengenome.length; i++)
+            gen += mostoftengenome[i];
+//        System.out.println(gen);
+
+        return ("Animals Alive: " + animalsAlive +
+                "\nGrass Amount: " + grasscount+
+                "\nMain Genome: " + gen+
+                "\nAverage Energy: " + avgEnergy +
+                "\nAverage Life Time: " + avgLifeTime+
+                "\nAverage Children Amount: " + avgChildrenAmount);
     }
 }

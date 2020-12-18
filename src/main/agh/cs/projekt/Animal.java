@@ -1,5 +1,7 @@
 package agh.cs.projekt;
 
+import javafx.scene.paint.Color;
+
 import java.util.*;
 
 public class Animal {
@@ -11,16 +13,24 @@ public class Animal {
     private int direction =new Random().nextInt(8);
     private List<IPositionChangeObserver> observers = new ArrayList<>();
     private int moveEnergy;
-    private int childrenNumber;
+    public int childrenNumber;
+    private int type;
+    private Animal parent1;
+    private Animal parent2;
 
-    public Animal(AbstractWorldMap map, Vector2d initialPosition, int energy, int[] gene, int moveEnergy){
+    public Animal(AbstractWorldMap map, Vector2d initialPosition, int energy, int[] gene, int moveEnergy, Animal parent1, Animal parent2){
         age =0;
         this.map=map;
         this.energy=energy;
         this.gene = rightGene(gene);
         this.moveEnergy = moveEnergy;
         position = initialPosition;
+        this.type =0;
+        this.childrenNumber =0;
+        this.parent1 = parent1;
+        this.parent2 =parent2;
     }
+
 
     private int[] rightGene(int[] gene){
         int[] count = new int[8];
@@ -77,6 +87,7 @@ public class Animal {
     public int giveBirth(){
         int energyloss = energy/4;
         energy -=energyloss;
+        childrenNumber++;
         return energyloss;
     }
 
@@ -84,6 +95,11 @@ public class Animal {
         observers.add(observer);
     }
 
+    public Color getcolor(){
+        if (energy<20) return Color.LIGHTCORAL;
+        else if (energy < 50) return Color.BROWN;
+        else return Color.RED;
+    }
 
 
 }
