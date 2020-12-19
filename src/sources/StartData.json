@@ -1,0 +1,10 @@
+{
+    "mapHeight": "20",
+    "mapWidth": "20",
+    "ratio": "0.5",
+    "startingEnergy": "40",
+    "moveEnergy": "2",
+    "oneGrassEnergy": "20",
+    "beginners": "20"
+
+}

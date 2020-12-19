@@ -128,7 +128,8 @@ public class JungleMap extends AbstractWorldMap {
     }
 
     public void removeGrass(Vector2d position){
-        grassFieldsMap.remove(position);
+        Grass dead = grassFieldsMap.remove(position);
+        dead = null;
     }
 
 //    public Vector2d getRightUpCorner(){
@@ -151,6 +152,10 @@ public class JungleMap extends AbstractWorldMap {
                 direction = new Random().nextInt(8);
         }
         return (position.goInDirection(direction,mapHeight,mapWidth));
+    }
+
+    public Vector2d getRightUpCorner(){
+        return right_up_corner;
     }
 
     @Override

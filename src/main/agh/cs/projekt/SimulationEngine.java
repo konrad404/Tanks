@@ -2,6 +2,7 @@ package agh.cs.projekt;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ListMultimap;
+
 import javafx.scene.paint.Color;
 
 import java.util.ArrayList;
@@ -11,22 +12,30 @@ import java.util.Random;
 
 public class SimulationEngine implements IEngine {
 
-    private Spectator spectator;
-    private JungleMap map;
-    private int oneGrassEnergy;
-    private int copulationEnergy;
-    private int moveEnergy;
-    private Visualizer visualizer;
+    protected final Spectator spectator;
+    protected JungleMap map;
+    private final int oneGrassEnergy;
+    private final int copulationEnergy;
+    private final int moveEnergy;
+    public Visualizer visualizer;
+    private boolean isTracking;
+    private int age;
+    private int ageToSummarize;
     private ListMultimap<Vector2d, Animal> animalsMap = ArrayListMultimap.create();
 
-    public SimulationEngine(JungleMap map,Visualizer visualizer, int beginners, int startingEnergy, int oneGrassEnergy,
+    public SimulationEngine(JungleMap map, int beginners, int startingEnergy, int oneGrassEnergy,
                             int moveEnergy){
+        int height = map.getRightUpCorner().y+1;
+        int width = map.getRightUpCorner().x +1;
+        this.visualizer = new Visualizer(400,400,width,height,this);
         this.spectator = new Spectator(beginners, startingEnergy);
         this.moveEnergy = moveEnergy;
         this.map = map;
-        this.visualizer=visualizer;
         this.oneGrassEnergy = oneGrassEnergy;
         this.copulationEnergy = startingEnergy/2;
+        this.isTracking = false;
+        this.age =1;
+        this.ageToSummarize =0;
         for (int i=0 ; i< beginners ; i++){
             int[] gene = new int[32];
             for (int j =0; j<gene.length; j++){
@@ -36,7 +45,7 @@ public class SimulationEngine implements IEngine {
             Vector2d position = new Vector2d(new Random().nextInt(map.mapWidth), new Random().nextInt(map.mapHeight));
             while(map.isOccupied(position))
                 position = new Vector2d(new Random().nextInt(map.mapWidth), new Random().nextInt(map.mapHeight));
-            Animal animal = new Animal(map,position, startingEnergy,gene, moveEnergy, null, null);
+            Animal animal = new Animal(map,position, startingEnergy,new Genotype(gene), moveEnergy, null, null, AnimalType.ORDINARY);
             map.place(animal);
             animalsMap.put(position,animal);
             animal.addObserver(map);
@@ -56,7 +65,8 @@ public class SimulationEngine implements IEngine {
                 if (animal.energy <=0) {
                     animalsMap.remove(oldPosition, animal);
 //                    System.out.println("umiera ");
-                    spectator.death(animal,startEnergy);
+                    spectator.death(animal,startEnergy, age);
+                    animal = null;
                     continue;
                 }
                 Vector2d newPosition = animals.get(i).getPosition();
@@ -154,14 +164,19 @@ public class SimulationEngine implements IEngine {
                 int cut1 = 1 + new Random().nextInt(29);
                 int cut2 = cut1 + 1 + new Random().nextInt((30-cut1));
                 int [] gene = new int[32];
-                for (int i =0; i<=cut1;i++) gene[i] = parent1.gene[i];
-                for (int i =cut1+1; i<=cut2;i++) gene[i] = parent2.gene[i];
-                for (int i = cut2+1;i<32;i++) gene[i] = parent1.gene[i];
+                for (int i =0; i<=cut1;i++) gene[i] = parent1.gene.gene[i];
+                for (int i =cut1+1; i<=cut2;i++) gene[i] = parent2.gene.gene[i];
+                for (int i = cut2+1;i<32;i++) gene[i] = parent1.gene.gene[i];
 //               energia dziecka to suma oddanych energi jego rodziców (1/4)
 
                 int energy = parent1.giveBirth()+parent2.giveBirth();
                 Vector2d birthPosition = map.findBirthPlace(position);
-                Animal child = new Animal(map,birthPosition, energy , gene, moveEnergy, parent1, parent2);
+                AnimalType type = AnimalType.ORDINARY;
+                if(parent1.type == AnimalType.TARGETED || parent2.type == AnimalType.TARGETED)
+                    type = AnimalType.CHILDREN;
+                else if(parent1.type != AnimalType.ORDINARY || parent2.type != AnimalType.ORDINARY)
+                    type = AnimalType.DESCENDANT;
+                Animal child = new Animal(map,birthPosition, energy , new Genotype(gene), moveEnergy, parent1, parent2, type);
                 children.add(child);
                 childrenPositions.add(birthPosition);
             }
@@ -177,10 +192,58 @@ public class SimulationEngine implements IEngine {
         }
     }
 
-//    potrzebna???
-//    public void cleaning(){
-//
-//    }
+    public void target(Vector2d position, int n){
+        if(this.isTracking);
+        else if (animalsMap.keySet().contains(position)) {
+            this.ageToSummarize = age+n;
+            System.out.println("zwierze na pozycji: " + position.toString() + " zaczynam śledzić");
+            ArrayList<Animal> animals = new ArrayList<>(animalsMap.get(position));
+            int maxEnergy = 0;
+            for(Animal animal: animals)
+                if (animal.energy > maxEnergy)
+                    maxEnergy = animal.energy;
+            ArrayList<Animal> alphas = new ArrayList<>();
+            for(Animal animal: animals)
+                if(animal.energy == maxEnergy)
+                    alphas.add(animal);
+            Animal chosen = alphas.get(new Random().nextInt(alphas.size()));
+            chosen.changeType(AnimalType.TARGETED);
+            this.isTracking = true;
+        }
+
+    }
+
+    public void targetMainGenome(){
+        Genotype main = spectator.mainGenome;
+        for(Animal animal: animalsMap.values()){
+            if(animal.gene.equals(main)){
+                int x = animal.getPosition().x;
+                int y = animal.getPosition().y;
+                visualizer.changeColor(x,y,Color.MEDIUMAQUAMARINE);
+            }
+        }
+    }
+
+    public void endOfSymulation(){
+        spectator.showEndStatistics(age);
+    }
+
+    public void simulate(){
+        new Thread (() ->{
+            while (!(this.visualizer.paused) && this.visualizer.onGoing) {
+                try {
+                    Thread.sleep(200);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                day();
+                while(this.visualizer.paused){
+                    System.out.print("");
+                }
+//                Thread.onSpinWait();
+            }
+        }).start();
+    }
 
     public void day(){
 //        System.out.println("dzień dobry");
@@ -189,16 +252,11 @@ public class SimulationEngine implements IEngine {
         spectator.placeGrass(newGrasses);
 
         run();
-//        System.out.println("pobiegane");
+
         eating();
-//        System.out.println("pojedzone");
+
         copulations();
-//        System.out.println("po...");
-//        System.out.println("liczba zwierząt: "+ animalsMap.size());
-//        for(Animal animal : animalsMap.values()) System.out.println("energia: " + animal.energy);
-//        spectator.present();
-//        Vector2d rightUpCorner = map.getRightUpCorner();
-//        System.out.println("róg:  " + rightUpCorner.toString());
+
         for(int x =0; x<20;x++){
             for(int y =0; y<20;y++){
 //                System.out.println("x " + x + " y " + y);
@@ -232,7 +290,22 @@ public class SimulationEngine implements IEngine {
             else
                 visualizer.changeColor(x,y,animals.get(0).getcolor());
         }
-        visualizer.addStatistics(spectator.toString());
+
+        int sumChildAmount =0;
+        for(Animal animal : animalsMap.values()) sumChildAmount+=animal.childrenNumber;
+
+        String statistics = spectator.toString(sumChildAmount, this.age, (ageToSummarize ==age));
+
+        if(age == ageToSummarize){
+            for(Animal animal: animalsMap.values()) animal.changeType(AnimalType.ORDINARY);
+            isTracking = false;
+        }
+
+        visualizer.addStatistics(statistics, (ageToSummarize == age));
+
+
+
+        this.age++;
 
 //        System.out.println("dobranoc");
 

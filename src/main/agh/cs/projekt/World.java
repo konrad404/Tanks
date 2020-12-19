@@ -12,34 +12,49 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import javafx.scene.shape.Rectangle;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
 
-
+import java.io.FileReader;
 
 
 public class World  extends Application{
 
     @Override
-    public void start(Stage stage) throws Exception {
-        Visualizer visualizer = new Visualizer(400,400, 20,20);
-        JungleMap map = new JungleMap(20,20, (float) 0.5);
-        SimulationEngine engine = new SimulationEngine(map,visualizer,20,50,20,2);
-        Scene scene = new Scene(visualizer.createContent(),900,600);
-        stage.setScene(scene);
-        stage.show();
-//        engine.day();
-        new Thread (() ->{
-            while (!(visualizer.paused)) {
-                try {
-                    Thread.sleep(200);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-                engine.day();
-                while(visualizer.paused){
-                    System.out.print("");
-                }
-            }
-        }).start();
+    public void start(Stage stage1) throws Exception {
+//        Visualizer visualizer = new Visualizer(400,400, 20,20, null);
+
+        JSONParser jsonParser = new JSONParser();
+        JSONObject startData = (JSONObject) jsonParser.parse(new FileReader("./src/sources/StartData.json"));
+
+        int mapHeight = Integer.parseInt(startData.get("mapHeight").toString());
+        int mapWidth =Integer.parseInt(startData.get("mapWidth").toString());
+        float ratio = Float.parseFloat(startData.get("ratio").toString());
+        int beginners =Integer.parseInt(startData.get("beginners").toString());;
+        int startingEnergy =Integer.parseInt(startData.get("startingEnergy").toString());;
+        int oneGrassEnergy =Integer.parseInt(startData.get("oneGrassEnergy").toString());;
+        int moveEnergy =Integer.parseInt(startData.get("moveEnergy").toString());;
+        int stageHeight = 600;
+        int stageWidth = 900;
+
+
+
+
+        JungleMap map1 = new JungleMap(mapHeight,mapWidth, ratio);
+        SimulationEngine engine1 = new SimulationEngine(map1,beginners,startingEnergy,oneGrassEnergy,moveEnergy);
+        Scene scene = new Scene(engine1.visualizer.createContent(),stageWidth,stageHeight);
+        stage1.setScene(scene);
+        stage1.show();
+
+        Stage stage2 = new Stage();
+        JungleMap map2 = new JungleMap(mapHeight,mapWidth, ratio);
+        SimulationEngine engine2 = new SimulationEngine(map2,beginners,startingEnergy,oneGrassEnergy,moveEnergy);
+        Scene scene2 = new Scene(engine2.visualizer.createContent(),stageWidth,stageHeight);
+        stage2.setScene(scene2);
+        stage2.show();
+
+        engine1.simulate();
+        engine2.simulate();
     }
 
 
@@ -58,4 +73,6 @@ public class World  extends Application{
         launch(args);
 //        System.out.println("koniec???");
     }
+
+
 }
