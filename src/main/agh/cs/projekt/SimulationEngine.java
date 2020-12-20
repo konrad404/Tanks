@@ -2,12 +2,8 @@ package agh.cs.projekt;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ListMultimap;
-
 import javafx.scene.paint.Color;
-
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
 import java.util.Random;
 
 public class SimulationEngine implements IEngine {
@@ -17,16 +13,19 @@ public class SimulationEngine implements IEngine {
     private final int oneGrassEnergy;
     private final int copulationEnergy;
     private final int moveEnergy;
-    public Visualizer visualizer;
+    public final Visualizer visualizer;
     private boolean isTracking;
     private int age;
     private int ageToSummarize;
-    private ListMultimap<Vector2d, Animal> animalsMap = ArrayListMultimap.create();
+    private final int beginners;
+    private final int height;
+    private final int width;
+    private final ListMultimap<Vector2d, Animal> animalsMap = ArrayListMultimap.create();
 
     public SimulationEngine(JungleMap map, int beginners, int startingEnergy, int oneGrassEnergy,
                             int moveEnergy){
-        int height = map.getRightUpCorner().y+1;
-        int width = map.getRightUpCorner().x +1;
+        this.height = map.getRightUpCorner().y+1;
+        this.width = map.getRightUpCorner().x+1;
         this.visualizer = new Visualizer(400,400,width,height,this);
         this.spectator = new Spectator(beginners, startingEnergy);
         this.moveEnergy = moveEnergy;
@@ -36,15 +35,18 @@ public class SimulationEngine implements IEngine {
         this.isTracking = false;
         this.age =1;
         this.ageToSummarize =0;
-        for (int i=0 ; i< beginners ; i++){
+//      zmniejszamy liczbe początkowych zwierząt jeżeli jest ich więcej niż miejsc na mapie
+        this.beginners = Math.min(beginners, this.height * this.width);
+//      dodawanie naszych pionierów
+        for (int i=0 ; i< this.beginners ; i++){
             int[] gene = new int[32];
             for (int j =0; j<gene.length; j++){
                 int genome = new Random().nextInt(8);
                 gene[j] = genome;
             }
-            Vector2d position = new Vector2d(new Random().nextInt(map.mapWidth), new Random().nextInt(map.mapHeight));
+            Vector2d position = new Vector2d(new Random().nextInt(width), new Random().nextInt(height));
             while(map.isOccupied(position))
-                position = new Vector2d(new Random().nextInt(map.mapWidth), new Random().nextInt(map.mapHeight));
+                position = new Vector2d(new Random().nextInt(width), new Random().nextInt(height));
             Animal animal = new Animal(map,position, startingEnergy,new Genotype(gene), moveEnergy, null, null, AnimalType.ORDINARY);
             map.place(animal);
             animalsMap.put(position,animal);
@@ -57,26 +59,25 @@ public class SimulationEngine implements IEngine {
     @Override
     public void run() {
         ArrayList<Animal> animals = new ArrayList<>(animalsMap.values());
-            for (int i =0; i< animals.size(); i++){
-                Vector2d oldPosition = animals.get(i).getPosition();
-                Animal animal = animals.get(i);
-                int startEnergy = animal.energy;
-                animal.move(animal);
-                if (animal.energy <=0) {
-                    animalsMap.remove(oldPosition, animal);
-//                    System.out.println("umiera ");
-                    spectator.death(animal,startEnergy, age);
-                    animal = null;
-                    continue;
-                }
-                Vector2d newPosition = animals.get(i).getPosition();
+        for (Animal animal : animals) {
+            Vector2d oldPosition = animal.getPosition();
+            int startEnergy = animal.energy;
+            animal.move();
+            if (animal.energy <= 0) {
+//              kiedy zwierze umrze podczas ruchu:
                 animalsMap.remove(oldPosition, animal);
-                animalsMap.put(newPosition, animal);
+                spectator.death(animal, startEnergy, age);
+                continue;
             }
+            Vector2d newPosition = animal.getPosition();
+            animalsMap.remove(oldPosition, animal);
+            animalsMap.put(newPosition, animal);
+        }
             spectator.run(moveEnergy);
     }
 
     public void eating() {
+        int spoiledEnergy =0;
         int grassCount=0;
         for (Vector2d position : animalsMap.keySet()) {
             if (map.isGrassAt(position)) {
@@ -86,41 +87,41 @@ public class SimulationEngine implements IEngine {
 //              pobieramy listę zwierząt na danym miejscu
 //              i wyszukujemy zwierzęta o najwyższej energii
                 ArrayList<Animal> animals = new ArrayList<>(animalsMap.get(position));
-                for (int i =0; i< animals.size(); i++){
-                    if(animals.get(i).energy > maxEnergy){
-                        maxEnergy = animals.get(i).energy;
-                        count =1;
-                    }
-                    else if(animals.get(i).energy == maxEnergy) count++;
+                for (Animal animal : animals) {
+                    if (animal.energy > maxEnergy) {
+                        maxEnergy = animal.energy;
+                        count = 1;
+                    } else if (animal.energy == maxEnergy) count++;
                 }
                 int bonusEnergy = oneGrassEnergy/count;
-                for (int i =0; i< animals.size(); i++){
-                    if(animals.get(i).energy == maxEnergy) animals.get(i).eat(bonusEnergy);
+                spoiledEnergy += (oneGrassEnergy - bonusEnergy*count);
+                for (Animal animal : animals) {
+                    if (animal.energy == maxEnergy) animal.eat(bonusEnergy);
                 }
                 map.removeGrass(position);
             }
         }
-        spectator.eating(grassCount,oneGrassEnergy);
+        spectator.eating(grassCount,oneGrassEnergy, spoiledEnergy);
     }
 
     public void copulations(){
+//      lista dzieci do dodania na koniec metody:
         ArrayList<Animal> children = new ArrayList<>();
-        ArrayList<Vector2d> childrenPositions = new ArrayList<>();
         for (Vector2d position: animalsMap.keySet()){
             if (animalsMap.get(position).size()>1){
                 ArrayList<Animal> animals = new ArrayList<>(animalsMap.get(position));
 //              ponieżej wyszukujemy 2 zwierzęta o najwyższej energii na każdym miejscu
                 int maxEnergy =0;
                 int count =0;
-                for(int i =0; i< animals.size();i++){
-                    if (animals.get(i).energy > maxEnergy){
-                        maxEnergy = animals.get(i).energy;
-                        count =0;
-                    }
-                    else if( animals.get(i).energy == maxEnergy) count++;
+                for (Animal animal : animals) {
+                    if (animal.energy > maxEnergy) {
+                        maxEnergy = animal.energy;
+                        count = 0;
+                    } else if (animal.energy == maxEnergy) count++;
                 }
                 int id1=0;
                 int id2=0;
+//              jeśli zwierząt o najwyższej energii jest więcej niż 1:
                 if (count >1){
                     ArrayList<Integer> parents = new ArrayList<>();
                     for(int i =0; i< animals.size();i++)
@@ -131,25 +132,25 @@ public class SimulationEngine implements IEngine {
                     id1 = parents.get(nr1);
                     id2 = parents.get(nr2);
                 }
-
+//              w przeciwnym przypadku:
                 else{
                     int secondMaxEnergy=0;
                     int secondCount =0;
                     for(int i =0; i< animals.size();i++)
                         if(animals.get(i).energy == maxEnergy) id1 = i;
-                    for(int i =0; i< animals.size();i++){
-                        if (animals.get(i).energy > secondMaxEnergy && animals.get(i).energy < maxEnergy){
-                            secondMaxEnergy = animals.get(i).energy;
-                            secondCount =0;
-                        }
-                        else if( animals.get(i).energy == secondMaxEnergy) secondCount++;
+                    for (Animal animal : animals) {
+                        if (animal.energy > secondMaxEnergy && animal.energy < maxEnergy) {
+                            secondMaxEnergy = animal.energy;
+                            secondCount = 0;
+                        } else if (animal.energy == secondMaxEnergy) secondCount++;
                     }
+//                  jesli zwierząt u drugiej najwyższej eneergi jest więcej niż 1 to wybieramy spośród nich losowo
                     if (secondCount >1){
-                        ArrayList<Integer> parents = new ArrayList<>();
+                        ArrayList<Integer> possibleParentId = new ArrayList<>();
                         for(int i =0; i< animals.size();i++)
-                            if(animals.get(i).energy == secondMaxEnergy) parents.add(i);
-                        int nr1 = new Random().nextInt(parents.size());
-                        id2 = parents.get(nr1);
+                            if(animals.get(i).energy == secondMaxEnergy) possibleParentId.add(i);
+                        int nr1 = new Random().nextInt(possibleParentId.size());
+                        id2 = possibleParentId.get(nr1);
                     }
                     else{
                         for(int i =0; i< animals.size();i++)
@@ -159,14 +160,15 @@ public class SimulationEngine implements IEngine {
 
                 Animal parent1 = animals.get(id1);
                 Animal parent2 = animals.get(id2);
+//              jeśli energia któregokolwiek z parentów jest za mała dziecko nie rodzi się
                 if(parent1.energy<copulationEnergy || parent2.energy < copulationEnergy) continue;
 //               poniżej tworzenie genu dziecka
                 int cut1 = 1 + new Random().nextInt(29);
                 int cut2 = cut1 + 1 + new Random().nextInt((30-cut1));
                 int [] gene = new int[32];
-                for (int i =0; i<=cut1;i++) gene[i] = parent1.gene.gene[i];
-                for (int i =cut1+1; i<=cut2;i++) gene[i] = parent2.gene.gene[i];
-                for (int i = cut2+1;i<32;i++) gene[i] = parent1.gene.gene[i];
+                for (int i =0; i<=cut1;i++) gene[i] = parent1.gene.genotype[i];
+                for (int i =cut1+1; i<=cut2;i++) gene[i] = parent2.gene.genotype[i];
+                for (int i = cut2+1;i<32;i++) gene[i] = parent1.gene.genotype[i];
 //               energia dziecka to suma oddanych energi jego rodziców (1/4)
 
                 int energy = parent1.giveBirth()+parent2.giveBirth();
@@ -178,25 +180,21 @@ public class SimulationEngine implements IEngine {
                     type = AnimalType.DESCENDANT;
                 Animal child = new Animal(map,birthPosition, energy , new Genotype(gene), moveEnergy, parent1, parent2, type);
                 children.add(child);
-                childrenPositions.add(birthPosition);
             }
         }
-        for(int childNr =0; childNr<children.size();childNr++){
-            Animal child = children.get(childNr);
-            Vector2d place = childrenPositions.get(childNr);
+        for (Animal child : children) {
+            Vector2d place = child.getPosition();
             spectator.birth(child);
             map.place(child);
-            animalsMap.put(place,child);
+            animalsMap.put(place, child);
             child.addObserver(map);
 
         }
     }
 
     public void target(Vector2d position, int n){
-        if(this.isTracking);
-        else if (animalsMap.keySet().contains(position)) {
+        if (!this.isTracking && animalsMap.keySet().contains(position)) {
             this.ageToSummarize = age+n;
-            System.out.println("zwierze na pozycji: " + position.toString() + " zaczynam śledzić");
             ArrayList<Animal> animals = new ArrayList<>(animalsMap.get(position));
             int maxEnergy = 0;
             for(Animal animal: animals)
@@ -210,7 +208,6 @@ public class SimulationEngine implements IEngine {
             chosen.changeType(AnimalType.TARGETED);
             this.isTracking = true;
         }
-
     }
 
     public void targetMainGenome(){
@@ -240,7 +237,6 @@ public class SimulationEngine implements IEngine {
                 while(this.visualizer.paused){
                     System.out.print("");
                 }
-//                Thread.onSpinWait();
             }
         }).start();
     }
@@ -257,24 +253,19 @@ public class SimulationEngine implements IEngine {
 
         copulations();
 
-        for(int x =0; x<20;x++){
-            for(int y =0; y<20;y++){
-//                System.out.println("x " + x + " y " + y);
+        for(int x =0; x<width;x++){
+            for(int y =0; y<height;y++){
                 if(map.isGrassAt(new Vector2d(x,y))) {
                     visualizer.changeColor(x, y, Color.GREEN);
-//                    System.out.println("x " + x + " y " + y);
                 }
                 else {
                     visualizer.changeColor(x, y, Color.LIGHTGRAY);
-//                    System.out.println("x " + x + " y " + y);
                 }
             }
         }
-
         for(Vector2d position: animalsMap.keySet()){
             int x = position.x;
             int y = position.y;
-//            System.out.println("x: " +x + " y: " + y);
             ArrayList<Animal> animals = new ArrayList<>(animalsMap.get(position));
             if(animalsMap.get(position).size() >1) {
                 int maxEnergy =0;
@@ -296,6 +287,8 @@ public class SimulationEngine implements IEngine {
 
         String statistics = spectator.toString(sumChildAmount, this.age, (ageToSummarize ==age));
 
+//      jesli epoka w której się znajdujemy jest epoką do której mieliśmy monitorować wybrane zwierzę
+//      to przestajemy je obserwować i wypisujemy jego dane
         if(age == ageToSummarize){
             for(Animal animal: animalsMap.values()) animal.changeType(AnimalType.ORDINARY);
             isTracking = false;
@@ -303,13 +296,7 @@ public class SimulationEngine implements IEngine {
 
         visualizer.addStatistics(statistics, (ageToSummarize == age));
 
-
-
         this.age++;
 
-//        System.out.println("dobranoc");
-
     }
-
-
 }

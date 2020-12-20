@@ -22,15 +22,14 @@ public class Visualizer {
     private final Text statistics;
     public boolean paused;
     public boolean onGoing;
-    public SimulationEngine engine;
-    public Tile[][] grid;
-    private Text targeted;
+    private final SimulationEngine engine;
+    private final Tile[][] grid;
+    private final Text targeted;
     private Vector2d targetPosition;
     private Button startTracking;
     private Pane root;
     private Button pauseButton;
 
-//    private TextInputDialog question;
 
     public Visualizer(int width, int height, int xTiles, int yTiles, SimulationEngine engine){
         this.w = width;
@@ -50,16 +49,14 @@ public class Visualizer {
     public Parent createContent(){
         root = new Pane();
         root.setPrefSize(w,h);
-//        System.out.println("yTiles: " + yTiles);
-//        System.out.println("xTiles: " + xTiles);
         for(int y =0; y< yTiles;y++){
             for(int x =0; x< xTiles; x++){
-//                System.out.println("x: " + x + " y " +y);
                 Tile tile = new Tile(x,y,tileSizeX,tileSizeY, this);
                 grid[x][y]= tile;
                 root.getChildren().add(tile);
             }
         }
+
         this.pauseButton = new Button("Pause/Continue");
         this.pauseButton.setTranslateX(w+40);
         this.pauseButton.setTranslateY(40);
@@ -93,10 +90,6 @@ public class Visualizer {
         stopAndShow.setOnAction(event -> stopAndGiveStatistics());
         root.getChildren().add(stopAndShow);
 
-
-
-//        root.getChildren().remove(this.targeted);
-
         return root;
     }
 
@@ -109,7 +102,6 @@ public class Visualizer {
             this.startTracking.setVisible(false);
             this.targeted.setVisible(false);
         }
-//        System.out.println(this.paused);
     }
 
     public void stopAndGiveStatistics(){
@@ -128,7 +120,6 @@ public class Visualizer {
             this.targetPosition = position;
             this.startTracking.setVisible(true);
         }
-//        root.getChildren().add(startTracking);
     }
 
     public void track(){
@@ -144,7 +135,6 @@ public class Visualizer {
     public void addStatistics(String statistics, boolean summarize){
         this.statistics.setText(statistics);
         if(summarize) changePause();
-//        System.out.println(statistics);
     }
 
 

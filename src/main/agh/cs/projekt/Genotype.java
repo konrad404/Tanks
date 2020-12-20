@@ -4,9 +4,9 @@ import java.util.Arrays;
 import java.util.Random;
 
 public class Genotype {
-    public int[] gene;
+    public int[] genotype;
     public Genotype(int[] givenGene){
-        this.gene = rightGene(givenGene);
+        this.genotype = rightGene(givenGene);
     }
 
     @Override
@@ -14,20 +14,20 @@ public class Genotype {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Genotype genotype = (Genotype) o;
-        return Arrays.equals(gene, genotype.gene);
+        return Arrays.equals(this.genotype, genotype.genotype);
     }
 
     @Override
     public int hashCode() {
-        return Arrays.hashCode(gene);
+        return Arrays.hashCode(genotype);
     }
 
     private int[] rightGene(int[] gene){
         int[] count = new int[8];
-        for (int i =0; i< gene.length;i++){
-            count[gene[i]]++;
+        for (int genome : gene) {
+            count[genome]++;
         }
-//  Dla każdego genomu którego brakuje w genie wyszukujemy miejsce możliwe do jego wstawienia
+//  Dla każdego genomu, którego brakuje w genie wyszukujemy miejsce możliwe do jego wstawienia
 //  poprzez podmienienie wartośći innego wystepującego więcej niż raz
         for (int i =0; i< count.length;i++){
             if (count[i] ==0){

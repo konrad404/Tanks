@@ -1,0 +1,6 @@
+Average Animal Number: 19.761906
+Average Grass Number: 15.0
+Most Dominating Genotype: 00000112222344444455666667777777
+Average Energy: 19.095238
+Average Life Time: 13.588235
+Average Children Number: 0.3846154

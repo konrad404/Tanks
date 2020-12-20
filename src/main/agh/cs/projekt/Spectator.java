@@ -4,14 +4,14 @@ import java.io.*;
 import java.util.*;
 
 public class Spectator {
-    private Map<Genotype,Integer> genotypes = new HashMap<>();
+    private final Map<Genotype,Integer> genotypes = new HashMap<>();
     private int animalNumber;
     private int sumEnergy;
     private double avgEnergy;
     private double avgLifeTime;
     private int sumLifeTime;
     private int deathCount;
-    private int grasscount;
+    private int grassCount;
     private boolean deathOfTheChosenOne;
     private int targetedChildren;
     private int targetedDescendant;
@@ -19,11 +19,11 @@ public class Spectator {
     public Genotype mainGenome;
     private int mainStatistics_SumAnimalsAlive;
     private int mainStatistics_SumGrassAmount;
-    private Map<Genotype, Integer> mainStatistics_AvgMainGenome = new HashMap<>();
+    private final  Map<Genotype, Integer> mainStatistics_AvgMainGenome = new HashMap<>();
     private int mainStatistics_SumEnergy;
     private int mainStatistics_SumLifeTime;
     private int mainStatistics_SumChildrenAmount;
-    private int begginers;
+    private final int beginners;
 
 
 //    private int childrenAmount;
@@ -31,8 +31,8 @@ public class Spectator {
 
 
     public Spectator(int beginners, int startingEnergy){
-        begginers = beginners;
-        grasscount =0;
+        this.beginners = beginners;
+        grassCount =0;
         animalNumber=0;
         avgEnergy = 0;
         sumEnergy=beginners*startingEnergy;
@@ -53,11 +53,12 @@ public class Spectator {
     }
 
     public void placeGrass(int placed){
-        grasscount += placed;
+        grassCount += placed;
     }
 
     public void birth(Animal animal){
-        if (!(animalNumber <=begginers))
+//      nie zwiększamy liczby zwierząt na mapie dla pionierów
+        if (!(animalNumber <= beginners))
             mainStatistics_SumChildrenAmount+=2;
         animalNumber++;
         if (genotypes.containsKey(animal.gene)){
@@ -66,6 +67,7 @@ public class Spectator {
         else{
             genotypes.put(animal.gene, 1);
         }
+
         if (animal.type == AnimalType.CHILDREN){
             targetedDescendant++;
             targetedChildren++;
@@ -75,10 +77,7 @@ public class Spectator {
     }
 
     public void death(Animal animal, int lostEnergy, int age){
-//        childrenAmount-=animal.childrenNumber;
-//        childrenAmount-=2;
         deathCount++;
-//        System.out.println("wiek śmierci: "+ animal.age);
         sumLifeTime+=animal.age;
         mainStatistics_SumLifeTime += animal.age;
         sumEnergy-=lostEnergy;
@@ -100,9 +99,9 @@ public class Spectator {
         sumEnergy -= animalsAlive*moveEnergy;
     }
 
-    public void eating(int grassAmount, int grassEnergy){
-        sumEnergy += grassAmount*grassEnergy;
-        grasscount -= grassAmount;
+    public void eating(int grassAmount, int grassEnergy, int spoiledEnergy){
+        sumEnergy += (grassAmount*grassEnergy-spoiledEnergy);
+        grassCount -= grassAmount;
     }
 
     public Genotype mainGenome(){
@@ -119,11 +118,11 @@ public class Spectator {
             }
         }
         if(count >1){
-            ArrayList<Genotype> potencialGenome = new ArrayList<>();
+            ArrayList<Genotype> possibleMainGenome = new ArrayList<>();
             for(Genotype genome: genotypes.keySet()){
-                if(genotypes.get(genome) == maxAmount) potencialGenome.add(genome);
+                if(genotypes.get(genome) == maxAmount) possibleMainGenome.add(genome);
             }
-            mostoftengenome = potencialGenome.get(new Random().nextInt(potencialGenome.size()));
+            mostoftengenome = possibleMainGenome.get(new Random().nextInt(possibleMainGenome.size()));
         }
 
         else{
@@ -147,19 +146,24 @@ public class Spectator {
 
         String bestGene = "";
         if(bestGenome != null){
-                for (int i = 0; i < bestGenome.gene.length; i++)
-                bestGene += bestGenome.gene[i];
+                for (int i = 0; i < bestGenome.genotype.length; i++)
+                bestGene += bestGenome.genotype[i];
         }
 
         float avgAnimalNumber = (float) mainStatistics_SumAnimalsAlive/age;
+        Math.round(avgAnimalNumber);
         float avgGrassNumber = (float) mainStatistics_SumGrassAmount/age;
+        Math.round(avgGrassNumber);
         float avgEnergy = (float) mainStatistics_SumEnergy/age;
+        Math.round(avgEnergy);
         float avgLifeTime = 0;
         if(deathCount >0){
             avgLifeTime = (float) mainStatistics_SumLifeTime / deathCount;
         }
-
+        Math.round(avgLifeTime);
         float avgChildrenNumber = (float) mainStatistics_SumChildrenAmount/animalNumber;
+        Math.round(avgChildrenNumber);
+
 
         String information = ("Average Animal Number: " + avgAnimalNumber+
                         "\nAverage Grass Number: " + avgGrassNumber+
@@ -181,6 +185,7 @@ public class Spectator {
             System.out.println("An error occurred.");
             e.printStackTrace();
         }
+
         try {
             FileWriter myWriter = new FileWriter("statistics.txt");
             myWriter.write(information);
@@ -225,7 +230,7 @@ public class Spectator {
 //      Aktualizowanie końcowych statystyk;
 
         mainStatistics_SumAnimalsAlive +=animalsAlive;
-        mainStatistics_SumGrassAmount+=grasscount;
+        mainStatistics_SumGrassAmount+= grassCount;
         mainStatistics_SumEnergy +=avgEnergy;
         mainStatistics_SumChildrenAmount +=avgChildrenAmount;
 
@@ -233,8 +238,8 @@ public class Spectator {
         String gen = "";
 
         if (mainGenome != null) {
-            for (int i = 0; i < mainGenome.gene.length; i++)
-                gen += mainGenome.gene[i];
+            for (int i = 0; i < mainGenome.genotype.length; i++)
+                gen += mainGenome.genotype[i];
             if(mainStatistics_AvgMainGenome.containsKey(mainGenome))
                 mainStatistics_AvgMainGenome.put(mainGenome,mainStatistics_AvgMainGenome.remove(mainGenome)+1);
             else
@@ -243,7 +248,7 @@ public class Spectator {
 
         return ("Age: " + age+
                 "\nAnimals Alive: " + animalsAlive +
-                "\nGrass Amount: " + grasscount+
+                "\nGrass Amount: " + grassCount +
                 "\nMain Genome: " + gen+
                 "\nAverage Energy: " + avgEnergy +
                 "\nAverage Life Time: " + avgLifeTime+

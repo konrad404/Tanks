@@ -1,23 +1,22 @@
 package agh.cs.projekt;
 
 import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ListMultimap;
 
 import java.util.*;
 
-public class JungleMap extends AbstractWorldMap {
-    private ListMultimap <Vector2d, Animal> animalJungleMap = ArrayListMultimap.create();
-    public Map<Vector2d, Grass> grassFieldsMap = new HashMap<>();
-    private final Vector2d left_down_corner= new Vector2d(0,0);
+public class JungleMap implements IWorldMap, IPositionChangeObserver {
+    private final ListMultimap <Vector2d, Animal> animalJungleMap = ArrayListMultimap.create();
+    private final Map<Vector2d, Grass> grassFieldsMap = new HashMap<>();
+//  prawy dolny róg to zawsze (0,0)
     private final Vector2d right_up_corner;
     private final Vector2d jungle_left_down_corner;
     private final Vector2d jungle_right_up_corner;
     private final int jungleHeight;
     private final int jungleWidth;
-    private final MapVisualizer image = new MapVisualizer(this);
+    private final int mapHeight;
+    private final int mapWidth;
 
-//    n jako liczba roslin na poczatku mapy
     public JungleMap(int mapHeight, int mapWidth, float jungleRatio){
         jungleHeight = (int) (mapHeight*jungleRatio);
         jungleWidth = (int) (mapWidth*jungleRatio);
@@ -28,7 +27,6 @@ public class JungleMap extends AbstractWorldMap {
         jungle_right_up_corner = new Vector2d((mapWidth-jungleWidth)/2+jungleWidth-1, (mapHeight-jungleHeight)/2+jungleHeight-1);
     }
 
-//funkcje mająca na celu późniejsze dodawanie pojedyńczej trawy w i poza junglą
     public void placeGrassInJungle(){
         int x = Math.abs(jungle_left_down_corner.x+(new Random().nextInt(jungleWidth)));
         int y = Math.abs(jungle_left_down_corner.y+(new Random().nextInt(jungleHeight)));
@@ -45,8 +43,7 @@ public class JungleMap extends AbstractWorldMap {
         int x = Math.abs((new Random().nextInt(mapWidth)));
         int y = Math.abs((new Random().nextInt(mapHeight)));
         Vector2d position = new Vector2d(x,y);
-        if (y>=jungle_left_down_corner.y &&  y <=jungle_right_up_corner.y &&
-                x>=jungle_left_down_corner.x && x<=jungle_right_up_corner.x ) {
+        if(position.precedes(jungle_right_up_corner) && position.follows(jungle_left_down_corner)){
             placeGrassOutOfJungle();
         }
         else if(objectAt(position)==null) {
@@ -83,7 +80,6 @@ public class JungleMap extends AbstractWorldMap {
         int placed =2;
         int placesInJungle = emptyPlacesInJungle();
         int placesOutOfJungle = emptyPlacesOutOfJungle();
-//        System.out.println("miejsca poza junglą: " + placesOutOfJungle);
 //      jeśli jest tylko jedno wolne miejsce to na nim stawiamy, bez losowania
         if (placesInJungle == 1){
             for (int i =jungle_left_down_corner.x;i<=jungle_right_up_corner.x;i++){
@@ -97,10 +93,11 @@ public class JungleMap extends AbstractWorldMap {
             }
         }
 
-//        jeśli nie to wywołujemy funkcję dodania pojedyńczej trawy na losowe miejsce
+//        jeśli jest więcej miejsc to wywołujemy funkcję dodania pojedyńczej trawy na losowe miejsce
         else if(placesInJungle > 1)
             placeGrassInJungle();
         else placed --;
+
 //      jeśli jest tylko jedno wolne miejsce to na nim stawiamy, bez losowania
         if (placesOutOfJungle == 1) {
             for (int i = 0; i < mapWidth; i++) {
@@ -116,7 +113,7 @@ public class JungleMap extends AbstractWorldMap {
             }
         }
 
-//        jeśli nie to wywołujemy funkcję dodania pojedyńczej trawy na losowe miejsce
+//        jeśli jest więcej to wywołujemy funkcję dodania pojedyńczej trawy na losowe miejsce
         else if(placesOutOfJungle >1)
             placeGrassOutOfJungle();
         else placed --;
@@ -124,30 +121,26 @@ public class JungleMap extends AbstractWorldMap {
     }
 
     public boolean isGrassAt(Vector2d position){
-        return grassFieldsMap.containsKey(position) == true;
+        return grassFieldsMap.containsKey(position);
     }
 
     public void removeGrass(Vector2d position){
-        Grass dead = grassFieldsMap.remove(position);
-        dead = null;
+        grassFieldsMap.remove(position);
     }
 
-//    public Vector2d getRightUpCorner(){
-//        return right_up_corner;
-//    }
 
     public Vector2d findBirthPlace(Vector2d position) {
-        Vector2d newPosition = position;
+        Vector2d newPosition;
 //      sprawdzanie czy dokoła jest jakieś wolne miejsce
-        boolean flag = false;
+        boolean anyEmptyPlace = false;
         for (int i = 0; i < 8; i++) {
             newPosition = position.goInDirection(i,mapHeight,mapWidth);
-            if (!isOccupied(newPosition)) flag = true;
+            if (!isOccupied(newPosition)) anyEmptyPlace = true;
         }
 
         int direction = new Random().nextInt(8);
 //        jeśli jest wolne miejsce (chociaż jedno to wybieramy je losowo)
-        if (flag){
+        if (anyEmptyPlace){
             while (isOccupied(position.goInDirection(direction, mapHeight, mapWidth)))
                 direction = new Random().nextInt(8);
         }
@@ -158,12 +151,7 @@ public class JungleMap extends AbstractWorldMap {
         return right_up_corner;
     }
 
-    @Override
-    public boolean canMoveTo(Vector2d position) {
-        return true;
-    }
 
-//    zamien na void
     @Override
     public void place(Animal animal){
             animalJungleMap.put(animal.getPosition(), animal);
@@ -192,13 +180,9 @@ public class JungleMap extends AbstractWorldMap {
     }
 
     @Override
-    public String toString(){
-        String mapa = image.draw(left_down_corner,right_up_corner);
-        return mapa;
+    public boolean isOccupied(Vector2d position) {
+        return objectAt(position) != null;
     }
 
-    public ListMultimap <Vector2d, Animal> getAnimalsMap (Vector2d position){
-        return animalJungleMap;
-    }
 
 }

@@ -3,13 +3,11 @@ package agh.cs.projekt;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
-import javafx.scene.text.Text;
 
 public class Tile extends StackPane {
-    private int x, y;
-    private Rectangle border;
-    private Text text = new Text();
-    private Visualizer visualizer;
+    private final int x, y;
+    private final Rectangle border;
+    private final Visualizer visualizer;
 
     public Tile(int x, int y, float tileSizeX, float  tileSizeY, Visualizer visualizer){
         this.visualizer = visualizer;
@@ -21,7 +19,7 @@ public class Tile extends StackPane {
 
         getChildren().add(border);
 
-        setTranslateX(x* tileSizeX);
+        setTranslateX(x*tileSizeX);
         setTranslateY(y*tileSizeY);
 
         setOnMouseClicked(event -> target());
@@ -30,7 +28,6 @@ public class Tile extends StackPane {
     public void target(){
         Vector2d position = new Vector2d(x,y);
         visualizer.target(position);
-//        visualizer.engine.target(position);
     }
 
     public void changeColor(Color color){
