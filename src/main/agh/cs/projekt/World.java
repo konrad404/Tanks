@@ -3,28 +3,17 @@ package agh.cs.projekt;
 
 import javafx.application.Application;
 
-import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.layout.Pane;
-import javafx.scene.layout.StackPane;
-import javafx.scene.paint.Color;
-import javafx.scene.text.Text;
 import javafx.stage.Stage;
-import javafx.scene.shape.Rectangle;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 
 import java.io.FileReader;
-import java.time.DayOfWeek;
-import java.util.Arrays;
-
 
 public class World  extends Application{
 
     @Override
     public void start(Stage stage1) throws Exception {
-//        Visualizer visualizer = new Visualizer(400,400, 20,20, null);
 
         JSONParser jsonParser = new JSONParser();
         JSONObject startData = (JSONObject) jsonParser.parse(new FileReader("./src/sources/StartData.json"));
@@ -68,6 +57,7 @@ public class World  extends Application{
     public static void main(String[] args){
 
         launch(args);
+
 
     }
 
