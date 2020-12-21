@@ -25,7 +25,7 @@ public class Tile extends StackPane {
         setOnMouseClicked(event -> target());
     }
 
-    public void target(){
+    private void target(){
         Vector2d position = new Vector2d(x,y);
         visualizer.target(position);
     }

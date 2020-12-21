@@ -6,11 +6,11 @@ import java.util.*;
 public class Animal {
     private final JungleMap map;
     private Vector2d position;
-    public int age;
-    public int energy;
+    private int age;
+    private int energy;
     public final Genotype gene;
     private int direction =new Random().nextInt(8);
-    private List<IPositionChangeObserver> observers = new ArrayList<>();
+    private final List<IPositionChangeObserver> observers = new ArrayList<>();
     private final int moveEnergy;
     public int childrenNumber;
     public AnimalType type;
@@ -87,7 +87,11 @@ public class Animal {
         else return Color.RED;
     }
 
+    public int getEnergy() {
+        return energy;
+    }
 
-
-
+    public int getAge(){
+        return age;
+    }
 }

@@ -7,8 +7,8 @@ public class Spectator {
     private final Map<Genotype,Integer> genotypes = new HashMap<>();
     private int animalNumber;
     private int sumEnergy;
-    private double avgEnergy;
-    private double avgLifeTime;
+    private float avgEnergy;
+    private float avgLifeTime;
     private int sumLifeTime;
     private int deathCount;
     private int grassCount;
@@ -24,10 +24,6 @@ public class Spectator {
     private int mainStatistics_SumLifeTime;
     private int mainStatistics_SumChildrenAmount;
     private final int beginners;
-
-
-//    private int childrenAmount;
-
 
 
     public Spectator(int beginners, int startingEnergy){
@@ -48,6 +44,8 @@ public class Spectator {
         mainStatistics_SumAnimalsAlive =0;
         mainStatistics_SumGrassAmount=0;
         mainStatistics_SumEnergy =0;
+//      następna zmienna jest tym samym co sumlifetime jednak przechowuje ją dwukrotnie
+//      aby zmienna wypisywana potem w końcowych statystykach miała początek nazwy mainSttatistics...
         mainStatistics_SumLifeTime=0;
         mainStatistics_SumChildrenAmount =0;
     }
@@ -78,8 +76,7 @@ public class Spectator {
 
     public void death(Animal animal, int lostEnergy, int age){
         deathCount++;
-        sumLifeTime+=animal.age;
-        mainStatistics_SumLifeTime += animal.age;
+        sumLifeTime+=animal.getAge();
         sumEnergy-=lostEnergy;
         if(genotypes.get(animal.gene) == 1){
             genotypes.remove(animal.gene);
@@ -104,7 +101,7 @@ public class Spectator {
         grassCount -= grassAmount;
     }
 
-    public Genotype mainGenome(){
+    private Genotype mainGenome(){
         int count=0;
         int maxAmount=0;
         Genotype mostoftengenome= null;
@@ -151,18 +148,13 @@ public class Spectator {
         }
 
         float avgAnimalNumber = (float) mainStatistics_SumAnimalsAlive/age;
-        Math.round(avgAnimalNumber);
         float avgGrassNumber = (float) mainStatistics_SumGrassAmount/age;
-        Math.round(avgGrassNumber);
         float avgEnergy = (float) mainStatistics_SumEnergy/age;
-        Math.round(avgEnergy);
         float avgLifeTime = 0;
         if(deathCount >0){
             avgLifeTime = (float) mainStatistics_SumLifeTime / deathCount;
         }
-        Math.round(avgLifeTime);
         float avgChildrenNumber = (float) mainStatistics_SumChildrenAmount/animalNumber;
-        Math.round(avgChildrenNumber);
 
 
         String information = ("Average Animal Number: " + avgAnimalNumber+
@@ -207,7 +199,8 @@ public class Spectator {
         }
         avgEnergy = (float) sumEnergy/animalsAlive;
 
-        float avgChildrenAmount = (float) sumChildAmount/animalsAlive;
+        float avgChildrenAmount =0;
+        if(animalsAlive != 0) avgChildrenAmount = (float) sumChildAmount/animalsAlive;
 
 
 //        System.out.println(gen);}
@@ -223,6 +216,7 @@ public class Spectator {
             int second = targetedDescendant;
             toAdd +=("\nChildren Amount: "+ first+
                     "\nDescendant Amount: "+ second);
+            this.deathOfTheChosenOne = false;
             targetedChildren =0;
             targetedDescendant=0;
         }
@@ -233,6 +227,7 @@ public class Spectator {
         mainStatistics_SumGrassAmount+= grassCount;
         mainStatistics_SumEnergy +=avgEnergy;
         mainStatistics_SumChildrenAmount +=avgChildrenAmount;
+        mainStatistics_SumLifeTime = sumLifeTime;
 
         mainGenome = mainGenome();
         String gen = "";
@@ -245,6 +240,7 @@ public class Spectator {
             else
                 mainStatistics_AvgMainGenome.put(mainGenome,1);
         }
+
 
         return ("Age: " + age+
                 "\nAnimals Alive: " + animalsAlive +

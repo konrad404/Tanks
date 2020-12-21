@@ -28,7 +28,7 @@ public class Visualizer {
     private Vector2d targetPosition;
     private Button startTracking;
     private Pane root;
-    private Button pauseButton;
+    private Text ending;
 
 
     public Visualizer(int width, int height, int xTiles, int yTiles, SimulationEngine engine){
@@ -57,10 +57,10 @@ public class Visualizer {
             }
         }
 
-        this.pauseButton = new Button("Pause/Continue");
-        this.pauseButton.setTranslateX(w+40);
-        this.pauseButton.setTranslateY(40);
-        this.pauseButton.setOnAction(event -> changePause());
+        Button pauseButton = new Button("Pause/Continue");
+        pauseButton.setTranslateX(w+40);
+        pauseButton.setTranslateY(40);
+        pauseButton.setOnAction(event -> changePause());
         root.getChildren().add(pauseButton);
 
         this.statistics.setTranslateX(w+40);
@@ -90,23 +90,31 @@ public class Visualizer {
         stopAndShow.setOnAction(event -> stopAndGiveStatistics());
         root.getChildren().add(stopAndShow);
 
+        ending = new Text("End of Simulation");
+        ending.setVisible(false);
+        ending.setTranslateX(w+20);
+        ending.setTranslateY(h-20);
+        root.getChildren().add(ending);
+
         return root;
     }
 
     private void changePause(){
-        if (!this.paused) {
-            this.paused = true;
+        if (!paused) {
+            paused = true;
         }
         else {
-            this.paused = false;
-            this.startTracking.setVisible(false);
-            this.targeted.setVisible(false);
+            paused = false;
+            startTracking.setVisible(false);
+            targeted.setVisible(false);
         }
     }
 
     public void stopAndGiveStatistics(){
-        this.engine.endOfSymulation();
+        engine.endOfSymulation();
+        ending.setVisible(true);
         onGoing = false;
+        paused = false;
     }
 
     public void changeColor(int x, int y, Color color){
@@ -115,20 +123,23 @@ public class Visualizer {
 
     public void target(Vector2d position){
         if(engine.map.objectAt(position) instanceof Animal) {
-            this.targeted.setText("pozycja zwierzęcia: " + position.toString());
-            this.targeted.setVisible(true);
-            this.targetPosition = position;
-            this.startTracking.setVisible(true);
+            targeted.setText("Animal Position: " + position.toString());
+            targeted.setVisible(true);
+            targetPosition = position;
+            startTracking.setVisible(true);
         }
     }
 
-    public void track(){
+    private void track(){
         final int[] agesToTrack = {-1};
         TextInputDialog question = new TextInputDialog();
         question.setHeaderText("Please enter the number of ages");
         Optional<String> res = question.showAndWait();
         res.ifPresent(age -> agesToTrack[0] = Integer.parseInt(age));
         engine.target(targetPosition, agesToTrack[0]);
+        startTracking.setVisible(false);
+        targeted.setVisible(false);
+        paused = false;
 
     }
 
