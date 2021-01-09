@@ -16,7 +16,7 @@ public class Spectator {
     private int targetedChildren;
     private int targetedDescendant;
     private int dateOfDeath;
-    public Genotype mainGenome;
+    public Genotype mainGenome; // public?
     private int mainStatistics_SumAnimalsAlive;
     private int mainStatistics_SumGrassAmount;
     private final  Map<Genotype, Integer> mainStatistics_AvgMainGenome = new HashMap<>();
@@ -191,7 +191,7 @@ public class Spectator {
 
     }
 
-    public String toString(int sumChildAmount, int age, boolean summarize){
+    public String toString(int sumChildAmount, int age, boolean summarize){ // odradzam toString z parametrami
         int animalsAlive = animalNumber-deathCount;
 
         if(sumLifeTime >0){

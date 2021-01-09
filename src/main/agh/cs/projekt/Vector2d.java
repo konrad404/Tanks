@@ -74,10 +74,10 @@ public class Vector2d {
     }
 
 //    funkcja zwraca losowe miejsce dokoła danej pozycji
-    public Vector2d goInDirection(int direction, int mapHeight, int mapWidth) {
+    public Vector2d goInDirection(int direction, int mapHeight, int mapWidth) { // czy wektory mogą chodzić?
         switch (direction) {
             case 0: {
-                return this.add(new Vector2d(0, 1), mapHeight, mapWidth);
+                return this.add(new Vector2d(0, 1), mapHeight, mapWidth);   // nowy wektor co wywołanie
             }
             case 1: {
                 return this.add(new Vector2d(1, 1), mapHeight, mapWidth);

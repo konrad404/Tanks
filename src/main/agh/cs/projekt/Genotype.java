@@ -5,7 +5,8 @@ import java.util.Random;
 
 public class Genotype {
     public int[] genotype;
-    public Genotype(int[] givenGene){
+
+    public Genotype(int[] givenGene) {
         this.genotype = rightGene(givenGene);
     }
 
@@ -22,23 +23,23 @@ public class Genotype {
         return Arrays.hashCode(genotype);
     }
 
-    private int[] rightGene(int[] gene){
+    private int[] rightGene(int[] gene) {   // mało czytelna nazwa
         int[] count = new int[8];
-        for (int genome : gene) {
+        for (int genome : gene) {   // raczej genom się składa z genów, niż odwrotnie
             count[genome]++;
         }
 //  Dla każdego genomu, którego brakuje w genie wyszukujemy miejsce możliwe do jego wstawienia
 //  poprzez podmienienie wartośći innego wystepującego więcej niż raz
-        for (int i =0; i< count.length;i++){
-            if (count[i] ==0){
+        for (int i = 0; i < count.length; i++) {
+            if (count[i] == 0) {
                 boolean flag = true;
-                while(flag){
-                    int draw = new Random().nextInt(32);
-                    if ( count[gene[draw]] > 1){
+                while (flag) {
+                    int draw = new Random().nextInt(32);    // nowy obiekt co obrót pętli
+                    if (count[gene[draw]] > 1) {
                         gene[i] = i;
-                        count[gene[draw]] --;
+                        count[gene[draw]]--;
                         count[i]++;
-                        flag =false;
+                        flag = false;
                     }
                 }
             }
@@ -47,4 +48,6 @@ public class Genotype {
         Arrays.sort(gene);
         return gene;
     }
+
+    // a gdzie krzyżowanie?
 }

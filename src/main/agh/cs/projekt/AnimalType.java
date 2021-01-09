@@ -1,6 +1,6 @@
 package agh.cs.projekt;
 
-public enum AnimalType {
+public enum AnimalType {    // myląca nazwa
     ORDINARY,
     TARGETED,
     CHILDREN,
