@@ -23,6 +23,7 @@ public class Obstacle extends AbstractObject {
         health -= damage;
         if (health <=0)
             this.die();
+
     }
 
     @Override
