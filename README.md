@@ -1,4 +1,4 @@
 # obiektowe1
 
-Program jest w main/agh/cs->projek.
-W sources jest plik Json, a plik statistics to przykładowe dane wyjściowe programu.
+Projekt jest w main/agh/cs->projekt2_Tanks
+W folderze Data znajduje się plik Json z danymi wejścia
