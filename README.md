@@ -1,2 +1,2 @@
-# obiektowe1
+# obiektowe
 
